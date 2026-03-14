@@ -15,6 +15,7 @@
   "dependencies": {
     "@f1-hub/contracts": "workspace:*",
     "@f1-hub/data": "workspace:*",
+    "@number-flow/react": "^0.6.0",
     "@radix-ui/react-slot": "1.2.4",
     "@tanstack/react-query": "5.90.21",
     "@tanstack/react-table": "8.21.3",

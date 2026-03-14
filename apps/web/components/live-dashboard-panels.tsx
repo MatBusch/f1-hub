@@ -4,6 +4,8 @@ import Link from "next/link";
 import type { LiveEnvelope, RaceControlMessage } from "@f1-hub/contracts";
 import { Radio, Waves, Wind } from "lucide-react";
 
+import NumberFlow from "@number-flow/react";
+
 import { getLeaderboard } from "@/lib/session-insights";
 import { Button } from "@/components/ui/button";
 import {
@@ -196,7 +198,7 @@ export function TimingTowerPanel({ rows }: { rows: TimingRow[] }) {
               className={`grid grid-cols-[48px_1fr_auto] items-center gap-3 rounded-(--radius-md) border px-3 py-2.5 ${rowStateClasses(driver)}`}
             >
               <div className="text-xl font-semibold tracking-[-0.04em]">
-                P{driver.position}
+                P<NumberFlow value={driver.position} />
               </div>
               <div className="min-w-0">
                 <div className="truncate font-medium">{driver.name}</div>

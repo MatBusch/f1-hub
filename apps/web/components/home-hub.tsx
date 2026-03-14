@@ -35,29 +35,29 @@ export function HomeHub() {
 
   return (
     <>
-      <section className="bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_28%),linear-gradient(180deg,var(--background),var(--background-elevated))]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-10 md:px-10 md:py-14">
-          <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-            <Card className="overflow-hidden border-[color-mix(in_oklab,var(--border),var(--primary)_18%)] bg-[linear-gradient(135deg,color-mix(in_oklab,var(--panel),white_4%),var(--panel-elevated))]">
-              <CardHeader className="gap-5">
-                <div className="inline-flex w-fit items-center rounded-full border border-[var(--border)] bg-[var(--panel)] px-3 py-1 text-xs uppercase tracking-[0.24em] text-[var(--muted-foreground)]">
+      <section className="bg-[var(--background)]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 md:px-6">
+          <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+            <Card className="overflow-hidden border-[var(--border-strong)]">
+              <CardHeader className="gap-4">
+                <div className="inline-flex w-fit items-center border border-[var(--border)] px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-[var(--muted-foreground)]">
                   F1 Hub Workspace
                 </div>
-                <div className="space-y-3">
-                  <CardTitle className="max-w-4xl text-5xl font-semibold tracking-[-0.04em] md:text-7xl">
+                <div className="space-y-2">
+                  <CardTitle className="max-w-4xl text-lg font-semibold md:text-xl">
                     Live race control room, replay, and deep-dive analysis in one system.
                   </CardTitle>
-                  <CardDescription className="max-w-2xl text-base leading-7 text-[var(--muted-foreground)] md:text-lg">
+                  <CardDescription className="max-w-2xl text-[12px] leading-relaxed text-[var(--muted-foreground)]">
                     The app now has a dedicated direction: a focused live page for
                     active sessions, with historical simulation and telemetry workspaces
                     growing separately from the race-day surface.
                   </CardDescription>
                 </div>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2">
                   <Button asChild>
                     <Link href="/dashboard">
                       Open live control room
-                      <ArrowRight className="size-4" />
+                      <ArrowRight className="size-3.5" />
                     </Link>
                   </Button>
                   {latestCompleted ? (
@@ -71,32 +71,32 @@ export function HomeHub() {
               </CardHeader>
             </Card>
 
-            <div className="grid gap-4">
-              <Card className="bg-[linear-gradient(180deg,color-mix(in_oklab,var(--primary),white_16%),color-mix(in_oklab,var(--primary),black_14%))] text-[var(--primary-foreground)]">
+            <div className="grid gap-2">
+              <Card className="border-[var(--primary)]/30 bg-[var(--primary)]/8">
                 <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl">
-                  <Radio className="size-5" />
-                  Live page
+                <CardTitle className="flex items-center gap-2 text-[13px] text-[var(--primary)]">
+                  <Radio className="size-4" />
+                  Live Page
                   </CardTitle>
-                  <CardDescription className="text-[color-mix(in_oklab,var(--primary-foreground),transparent_28%)]">
+                  <CardDescription className="text-[11px] text-[var(--muted-foreground)]">
                     Race-day timing tower, track surface, race control, and rolling signal windows.
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="text-sm text-[color-mix(in_oklab,var(--primary-foreground),transparent_18%)]">
+                <CardContent className="text-[11px] text-[var(--muted-foreground)]">
                   {liveSession
                     ? `${liveSession.meetingName} is currently live and ready for the dedicated control room.`
                     : "No live session right now, but the dedicated control room is in place for the next race."}
                 </CardContent>
               </Card>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-                <Card className="bg-[var(--panel)]/95">
+              <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <TimerReset className="size-4" />
+                    <CardTitle className="flex items-center gap-2 text-[12px]">
+                      <TimerReset className="size-3.5" />
                       Simulation
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3 text-sm text-[var(--muted-foreground)]">
+                  <CardContent className="space-y-2 text-[11px] text-[var(--muted-foreground)]">
                     <p>
                       Historical sessions stay chunkable and replay-safe instead of overloading live mode.
                     </p>
@@ -105,14 +105,14 @@ export function HomeHub() {
                     </Button>
                   </CardContent>
                 </Card>
-                <Card className="bg-[var(--panel)]/95">
+                <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base">
-                      <Waves className="size-4" />
-                      Deep dives
+                    <CardTitle className="flex items-center gap-2 text-[12px]">
+                      <Waves className="size-3.5" />
+                      Deep Dives
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3 text-sm text-[var(--muted-foreground)]">
+                  <CardContent className="space-y-2 text-[11px] text-[var(--muted-foreground)]">
                     <p>
                       Telemetry overlays, stint views, and comparisons can grow into their own pages next.
                     </p>

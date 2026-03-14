@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, TimerReset } from "lucide-react";
 
+import NumberFlow from "@number-flow/react";
+
 import { fetchSessionCatalog } from "@/lib/api";
 import {
   useLiveSessionController,
@@ -173,10 +175,10 @@ export function TimingBoard() {
 
             <PanelShell title="Atmosphere" description="Quick weather and signal context.">
               <div className="space-y-2 text-sm text-[var(--muted-foreground)]">
-                <div>Air {weather?.airTemp ?? "--"}C</div>
-                <div>Track {weather?.trackTemp ?? "--"}C</div>
-                <div>Humidity {weather?.humidity ?? "--"}%</div>
-                <div>Wind {weather?.windSpeed ?? "--"} km/h</div>
+                <div>Air {weather?.airTemp != null ? <NumberFlow value={Number(weather.airTemp)} suffix="C" /> : "--"}</div>
+                <div>Track {weather?.trackTemp != null ? <NumberFlow value={Number(weather.trackTemp)} suffix="C" /> : "--"}</div>
+                <div>Humidity {weather?.humidity != null ? <NumberFlow value={Number(weather.humidity)} suffix="%" /> : "--"}</div>
+                <div>Wind {weather?.windSpeed != null ? <NumberFlow value={Number(weather.windSpeed)} suffix=" km/h" /> : "--"}</div>
                 <div>Rain {weather?.rainfall ?? "--"}</div>
               </div>
             </PanelShell>

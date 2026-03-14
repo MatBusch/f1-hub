@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
   ArrowLeft,
+  ChevronDown,
   Gauge,
   GitCompare,
   Map,
@@ -99,11 +100,11 @@ function StatTile({
   unit?: string;
 }) {
   return (
-    <div className="rounded-lg bg-white/[0.04] p-2.5 text-center">
-      <div className="text-[10px] uppercase tracking-wider text-white/45">{label}</div>
-      <div className="font-mono text-lg font-bold text-white">
+    <div className="bg-[var(--muted)] p-2.5 text-center">
+      <div className="text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">{label}</div>
+      <div className="font-mono text-lg font-bold text-[var(--foreground)]">
         {value}
-        {unit ? <span className="ml-0.5 text-xs text-white/45">{unit}</span> : null}
+        {unit ? <span className="ml-0.5 text-xs text-[var(--muted-foreground)]">{unit}</span> : null}
       </div>
     </div>
   );
@@ -123,31 +124,106 @@ function DriverLapCard({
   lap: TelemetryLapSummary | null;
 }) {
   return (
-    <Card className="relative overflow-hidden border-white/10 bg-[#111317] text-white">
-      <div className="absolute right-4 top-0 text-[110px] font-black leading-none text-white/[0.04]">
+    <Card className="relative overflow-hidden">
+      <div className="absolute right-4 top-0 text-[110px] font-black leading-none text-[var(--muted)]/40">
         {lap?.lapNumber ?? "-"}
       </div>
       <CardContent className="relative z-10 flex items-center gap-4 p-4">
-        <div className="h-12 w-1.5 rounded-full" style={{ backgroundColor: teamColor }} />
+        <div className="h-12 w-1.5" style={{ backgroundColor: teamColor }} />
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-xl font-black tracking-tight">{driverName}</h3>
             {title ? (
-              <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-[10px] font-medium text-red-300">
+              <span className="bg-red-500/15 px-1.5 py-0.5 text-[10px] font-medium text-red-500">
                 {title}
               </span>
             ) : null}
           </div>
-          <p className="text-sm text-white/55">{teamName}</p>
+          <p className="text-sm text-[var(--muted-foreground)]">{teamName}</p>
         </div>
         <div className="ml-auto text-right">
-          <div className="text-xs text-white/45">Lap {lap?.lapNumber ?? "--"}</div>
+          <div className="text-xs text-[var(--muted-foreground)]">Lap {lap?.lapNumber ?? "--"}</div>
           <div className="font-mono text-lg font-bold" style={{ color: teamColor }}>
             {formatLapTimeFromMs(lap?.lapDurationMs)}
           </div>
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function DriverDropdown({
+  label,
+  drivers,
+  selectedNumber,
+  onSelect,
+  allowNone = false,
+}: {
+  label: string;
+  drivers: Array<{ driverNumber: number; nameAcronym: string; teamColor: string; fullName: string }>;
+  selectedNumber: number | null;
+  onSelect: (driverNumber: number | null) => void;
+  allowNone?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const selected = drivers.find((d) => d.driverNumber === selectedNumber);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <label className="mb-1.5 block text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">{label}</label>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-left text-[12px] transition-colors hover:bg-[var(--muted)]"
+      >
+        {selected ? (
+          <span className="flex items-center gap-2">
+            <span className="inline-block size-2" style={{ backgroundColor: `#${selected.teamColor}` }} />
+            <span className="font-bold" style={{ color: `#${selected.teamColor}` }}>{selected.driverNumber}</span>
+            <span>{selected.nameAcronym}</span>
+          </span>
+        ) : (
+          <span className="text-[var(--muted-foreground)]">{allowNone ? "None" : "Select..."}</span>
+        )}
+        <ChevronDown className="size-3.5 text-[var(--muted-foreground)]" />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full z-50 mt-1 max-h-[240px] w-full overflow-y-auto border border-[var(--border)] bg-[var(--panel)]">
+          {allowNone && (
+            <button
+              type="button"
+              onClick={() => { onSelect(null); setOpen(false); }}
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition-colors hover:bg-[var(--muted)] ${selectedNumber == null ? "bg-[var(--muted)]" : ""}`}
+            >
+              <span className="inline-block size-2 border border-dashed border-[var(--border-strong)]" />
+              <span className="text-[var(--muted-foreground)]">None</span>
+            </button>
+          )}
+          {drivers.map((driver) => (
+            <button
+              key={driver.driverNumber}
+              type="button"
+              onClick={() => { onSelect(driver.driverNumber); setOpen(false); }}
+              className={`flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition-colors hover:bg-[var(--muted)] ${selectedNumber === driver.driverNumber ? "bg-[var(--muted)]" : ""}`}
+            >
+              <span className="inline-block size-2" style={{ backgroundColor: `#${driver.teamColor}` }} />
+              <span className="font-bold" style={{ color: `#${driver.teamColor}` }}>{driver.driverNumber}</span>
+              <span>{driver.nameAcronym}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -208,10 +284,10 @@ function TraceChart({
   };
 
   return (
-    <Card className="border-white/10 bg-[#111317] text-white">
+    <Card>
       <CardContent className="p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-sm font-medium text-white/60">
+          <h3 className="flex items-center gap-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
             {icon}
             {title}
           </h3>
@@ -246,7 +322,7 @@ function TraceChart({
                 x2={Math.max(primaryValues.length, 1)}
                 y2={line}
                 stroke="currentColor"
-                strokeOpacity="0.05"
+                strokeOpacity="0.08"
               />
             ))}
             {compareValues.length > 0 && compareColor ? (
@@ -277,24 +353,24 @@ function TraceChart({
             />
             {hoverIndex != null && activeValue != null ? (
               <>
-                <line x1={hoverIndex} y1="0" x2={hoverIndex} y2="100" stroke="white" strokeOpacity="0.3" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+                <line x1={hoverIndex} y1="0" x2={hoverIndex} y2="100" stroke="var(--foreground)" strokeOpacity="0.3" strokeWidth="1" vectorEffect="non-scaling-stroke" />
                 <circle
                   cx={hoverIndex}
                   cy={100 - ((activeValue - minValue) / span) * 100}
                   r="4"
                   fill={color}
-                  stroke="white"
+                  stroke="var(--foreground)"
                   strokeWidth="2"
                   vectorEffect="non-scaling-stroke"
                 />
               </>
             ) : null}
           </svg>
-          <div className="absolute left-0 top-0 rounded bg-black/65 px-1 text-[10px] font-mono text-white/50">
+          <div className="absolute left-0 top-0 bg-[var(--background)]/80 px-1 text-[10px] font-mono text-[var(--muted-foreground)]">
             {Math.round(maxValue)}
             {unit}
           </div>
-          <div className="absolute bottom-0 left-0 rounded bg-black/65 px-1 text-[10px] font-mono text-white/50">
+          <div className="absolute bottom-0 left-0 bg-[var(--background)]/80 px-1 text-[10px] font-mono text-[var(--muted-foreground)]">
             {Math.round(minValue)}
             {unit}
           </div>
@@ -345,7 +421,7 @@ function PedalTrace({
       onMouseLeave={() => onHover(null)}
     >
       <div className="absolute left-2 top-1 z-10 flex items-center gap-2">
-        <span className="text-[10px] font-bold uppercase text-white/45">{label}</span>
+        <span className="text-[10px] font-bold uppercase text-[var(--muted-foreground)]">{label}</span>
         {activeValue != null ? (
           <span className="text-[10px] font-mono" style={{ color }}>
             {activeValue}%
@@ -366,7 +442,7 @@ function PedalTrace({
           vectorEffect="non-scaling-stroke"
         />
         {hoverIndex != null ? (
-          <line x1={hoverIndex} y1="0" x2={hoverIndex} y2="100" stroke="white" strokeOpacity="0.3" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+          <line x1={hoverIndex} y1="0" x2={hoverIndex} y2="100" stroke="var(--foreground)" strokeOpacity="0.3" strokeWidth="1" vectorEffect="non-scaling-stroke" />
         ) : null}
       </svg>
     </div>
@@ -385,7 +461,7 @@ function TrackMap({
   totalPoints: number;
 }) {
   if (points.length === 0) {
-    return <div className="flex h-full items-center justify-center text-xs text-white/45">No GPS Data</div>;
+    return <div className="flex h-full items-center justify-center text-xs text-[var(--muted-foreground)]">No GPS Data</div>;
   }
 
   const xs = points.map((point) => point.x);
@@ -420,7 +496,7 @@ function TrackMap({
           cy={activePoint.y}
           r={Math.max(spanX, spanY) * 0.025}
           fill={color}
-          stroke="white"
+          stroke="var(--foreground)"
           strokeWidth={Math.max(spanX, spanY) * 0.008}
         />
       ) : null}
@@ -558,99 +634,54 @@ export function TelemetryWorkspace({ sessionKey }: { sessionKey: number }) {
     summaryQuery.data?.session.sessionName ?? summaryQuery.data?.session.sessionType ?? "Telemetry";
   const meetingLabel = summaryQuery.data?.session.meetingKey ? summaryQuery.data.session.sessionType : "Session";
 
+  const compareDrivers = useMemo(
+    () => drivers.filter((d) => d.driverNumber !== primaryDriverNumber),
+    [drivers, primaryDriverNumber],
+  );
+
   return (
-    <main className="min-h-screen bg-[#090b10] text-white">
-      <div className="container mx-auto max-w-7xl p-2 sm:p-4 lg:p-8">
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <div className="mx-auto max-w-7xl p-2 sm:p-4 lg:p-8">
         <div className="mb-6">
           <div className="mb-2 flex items-center gap-3">
             <Link
               href={`/sessions/${sessionKey}`}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white/70 hover:bg-white/[0.06] hover:text-white"
+              className="inline-flex items-center gap-2 border border-[var(--border)] bg-[var(--panel)] px-3 py-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="size-3.5" />
               Back to session
             </Link>
           </div>
-          <h1 className="text-2xl font-bold sm:text-3xl">F1 Telemetry Analysis</h1>
-          <p className="text-sm text-white/55 sm:text-base">
+          <h1 className="text-xl font-bold">Telemetry Analysis</h1>
+          <p className="text-[12px] text-[var(--muted-foreground)]">
             {sessionLabel} telemetry for session {sessionKey}. Compare drivers, inspect speed traces, and view GPS lap maps.
           </p>
         </div>
 
-        <div className="space-y-6">
-          <Card className="overflow-hidden border-white/10 bg-[#111317] text-white shadow-sm">
-            <div className="border-b border-white/10 bg-gradient-to-r from-red-600/15 to-transparent p-4">
-              <h2 className="text-lg font-bold">Select Driver & Lap</h2>
+        <div className="space-y-4">
+          {/* Driver & Lap Selection */}
+          <Card>
+            <div className="border-b border-[var(--border)] px-4 py-3">
+              <h2 className="text-[11px] font-semibold uppercase tracking-[0.1em]">Select Driver & Lap</h2>
             </div>
-            <CardContent className="grid grid-cols-1 gap-4 p-4 md:grid-cols-4">
-              <div className="md:col-span-2">
-                <label className="mb-1.5 block text-xs font-medium text-white/45">Primary driver</label>
-                <div className="grid max-h-[140px] grid-cols-5 gap-1.5 overflow-y-auto sm:grid-cols-10">
-                  {drivers.map((driver) => (
-                    <button
-                      key={driver.driverNumber}
-                      onClick={() => setPrimaryDriverNumber(driver.driverNumber)}
-                      className={`flex flex-col items-center justify-center gap-0.5 rounded-lg border p-1.5 text-xs font-bold transition-all ${
-                        primaryDriverNumber === driver.driverNumber ? "ring-2 ring-offset-1 ring-offset-[#111317]" : "hover:bg-white/[0.04]"
-                      }`}
-                      style={{
-                        borderColor: primaryDriverNumber === driver.driverNumber ? `#${driver.teamColor}` : undefined,
-                        backgroundColor: primaryDriverNumber === driver.driverNumber ? `#${driver.teamColor}15` : undefined,
-                        ["--tw-ring-color" as string]: `#${driver.teamColor}`,
-                      }}
-                      type="button"
-                    >
-                      <span className="text-base font-black" style={{ color: `#${driver.teamColor}` }}>
-                        {driver.driverNumber}
-                      </span>
-                      <span className="text-[9px] opacity-70">{driver.nameAcronym}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
+            <CardContent className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-3">
+              <DriverDropdown
+                label="Primary driver"
+                drivers={drivers}
+                selectedNumber={primaryDriverNumber}
+                onSelect={(n) => setPrimaryDriverNumber(n)}
+              />
+              <DriverDropdown
+                label="Compare driver"
+                drivers={compareDrivers}
+                selectedNumber={compareDriverNumber}
+                onSelect={(n) => setCompareDriverNumber(n)}
+                allowNone
+              />
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-white/45">Compare driver</label>
-                <div className="grid max-h-[140px] grid-cols-5 gap-1.5 overflow-y-auto sm:grid-cols-5">
-                  <button
-                    onClick={() => setCompareDriverNumber(null)}
-                    className={`flex flex-col items-center justify-center gap-0.5 rounded-lg border border-dashed p-1.5 text-xs font-bold ${
-                      compareDriverNumber == null ? "bg-white/[0.06] text-white" : "text-white/45 hover:bg-white/[0.04]"
-                    }`}
-                    type="button"
-                  >
-                    <span className="text-base">-</span>
-                    <span className="text-[9px]">None</span>
-                  </button>
-                  {drivers
-                    .filter((driver) => driver.driverNumber !== primaryDriverNumber)
-                    .map((driver) => (
-                      <button
-                        key={driver.driverNumber}
-                        onClick={() => setCompareDriverNumber(driver.driverNumber)}
-                        className={`flex flex-col items-center justify-center gap-0.5 rounded-lg border p-1.5 text-xs font-bold transition-all ${
-                          compareDriverNumber === driver.driverNumber ? "ring-2 ring-offset-1 ring-offset-[#111317]" : "hover:bg-white/[0.04]"
-                        }`}
-                        style={{
-                          borderColor: compareDriverNumber === driver.driverNumber ? `#${driver.teamColor}` : undefined,
-                          backgroundColor: compareDriverNumber === driver.driverNumber ? `#${driver.teamColor}15` : undefined,
-                          ["--tw-ring-color" as string]: `#${driver.teamColor}`,
-                        }}
-                        type="button"
-                      >
-                        <span className="text-base font-black" style={{ color: `#${driver.teamColor}` }}>
-                          {driver.driverNumber}
-                        </span>
-                        <span className="text-[9px] opacity-70">{driver.nameAcronym}</span>
-                      </button>
-                    ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-xs font-medium text-white/45">Lap</label>
+                <label className="mb-1.5 block text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">Lap</label>
                 <select
-                  className="w-full rounded-lg border border-white/10 bg-[#0c0e12] p-2.5 font-mono font-medium text-white"
+                  className="w-full border border-[var(--border)] bg-[var(--background)] px-3 py-2 font-mono text-[12px] text-[var(--foreground)] focus:border-[var(--ring)] focus:outline-none"
                   value={selectedLapNumber ?? ""}
                   onChange={(event) => setSelectedLapNumber(Number.parseInt(event.target.value, 10))}
                   disabled={primaryLaps.length === 0}
@@ -694,7 +725,7 @@ export function TelemetryWorkspace({ sessionKey }: { sessionKey: number }) {
                   <div className="space-y-4 xl:col-span-3">
                     <TraceChart
                       title="Speed Trace"
-                      icon={<TrendingUp className="h-4 w-4" />}
+                      icon={<TrendingUp className="size-3.5" />}
                       data={primaryTrace}
                       compareData={compareTrace}
                       dataKey="speed"
@@ -710,7 +741,7 @@ export function TelemetryWorkspace({ sessionKey }: { sessionKey: number }) {
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <TraceChart
                         title="Engine RPM"
-                        icon={<Gauge className="h-4 w-4" />}
+                        icon={<Gauge className="size-3.5" />}
                         data={primaryTrace}
                         compareData={compareTrace}
                         dataKey="rpm"
@@ -725,7 +756,7 @@ export function TelemetryWorkspace({ sessionKey }: { sessionKey: number }) {
                       />
                       <TraceChart
                         title="Gear"
-                        icon={<Activity className="h-4 w-4" />}
+                        icon={<Activity className="size-3.5" />}
                         data={primaryTrace}
                         compareData={compareTrace}
                         dataKey="gear"
@@ -740,10 +771,10 @@ export function TelemetryWorkspace({ sessionKey }: { sessionKey: number }) {
                         compareDriverName={selectedCompareDriver?.nameAcronym}
                       />
                     </div>
-                    <Card className="border-white/10 bg-[#111317] text-white">
+                    <Card>
                       <CardContent className="space-y-3 p-4">
-                        <h3 className="flex items-center gap-2 text-sm font-medium text-white/60">
-                          <Zap className="h-4 w-4" />
+                        <h3 className="flex items-center gap-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
+                          <Zap className="size-3.5" />
                           Pedal Inputs
                         </h3>
                         <PedalTrace
@@ -769,13 +800,13 @@ export function TelemetryWorkspace({ sessionKey }: { sessionKey: number }) {
                   </div>
 
                   <div className="space-y-4">
-                    <Card className="border-white/10 bg-[#111317] text-white">
+                    <Card>
                       <CardContent className="p-4">
-                        <h3 className="mb-3 flex items-center gap-2 text-sm font-medium text-white/60">
-                          <Map className="h-4 w-4" />
+                        <h3 className="mb-3 flex items-center gap-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
+                          <Map className="size-3.5" />
                           Track Map
                         </h3>
-                        <div className="aspect-square overflow-hidden rounded-lg border border-white/10 bg-white/[0.02] p-2">
+                        <div className="aspect-square overflow-hidden border border-[var(--border)] bg-[var(--muted)]/30 p-2">
                           <TrackMap
                             points={mapPoints}
                             color={primaryColor}
@@ -787,9 +818,9 @@ export function TelemetryWorkspace({ sessionKey }: { sessionKey: number }) {
                     </Card>
 
                     {lapStats ? (
-                      <Card className="border-white/10 bg-[#111317] text-white">
+                      <Card>
                         <CardContent className="p-4">
-                          <h3 className="mb-3 text-sm font-medium text-white/60">
+                          <h3 className="mb-3 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
                             Lap Statistics
                           </h3>
                           <div className="grid grid-cols-2 gap-2">
@@ -806,10 +837,10 @@ export function TelemetryWorkspace({ sessionKey }: { sessionKey: number }) {
                   </div>
                 </div>
               ) : (
-                <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-white/10 bg-[#111317]">
+                <div className="flex h-64 items-center justify-center border border-dashed border-[var(--border)] bg-[var(--panel)]">
                   <div className="space-y-2 p-6 text-center">
-                    <p className="font-medium text-white/70">No telemetry data available</p>
-                    <p className="max-w-md text-sm text-white/45">
+                    <p className="text-[12px] font-medium text-[var(--foreground)]">No telemetry data available</p>
+                    <p className="max-w-md text-[11px] text-[var(--muted-foreground)]">
                       This session or lap does not expose enough telemetry samples yet.
                     </p>
                   </div>
@@ -817,11 +848,11 @@ export function TelemetryWorkspace({ sessionKey }: { sessionKey: number }) {
               )}
             </div>
           ) : (
-            <div className="flex h-64 items-center justify-center rounded-xl border border-dashed border-white/10 bg-[#111317]">
+            <div className="flex h-64 items-center justify-center border border-dashed border-[var(--border)] bg-[var(--panel)]">
               <div className="space-y-2 text-center">
-                <Search className="mx-auto h-12 w-12 text-white/25" />
-                <p className="font-medium text-white/70">Select a driver and lap to begin</p>
-                <p className="text-sm text-white/45">{meetingLabel}</p>
+                <Search className="mx-auto size-8 text-[var(--muted-foreground)]" />
+                <p className="text-[12px] font-medium">Select a driver and lap to begin</p>
+                <p className="text-[11px] text-[var(--muted-foreground)]">{meetingLabel}</p>
               </div>
             </div>
           )}

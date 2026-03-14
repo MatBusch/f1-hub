@@ -20,6 +20,8 @@ import {
   Timer,
 } from "lucide-react";
 
+import NumberFlow from "@number-flow/react";
+
 import { fetchSessionCatalog } from "@/lib/api";
 
 function formatDate(value: string) {
@@ -40,12 +42,13 @@ function formatTime(value: string) {
 
 function sessionTypeColor(sessionType: string): string {
   const type = sessionType.toLowerCase();
-  if (type.includes("race")) return "bg-red-500/20 text-red-400 border-red-500/30";
+  if (type.includes("race"))
+    return "bg-red-500/15 text-red-400 border-red-500/30";
   if (type.includes("qualifying") || type.includes("quali"))
-    return "bg-amber-500/20 text-amber-400 border-amber-500/30";
+    return "bg-amber-500/15 text-amber-400 border-amber-500/30";
   if (type.includes("sprint"))
-    return "bg-purple-500/20 text-purple-400 border-purple-500/30";
-  return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+    return "bg-purple-500/15 text-purple-400 border-purple-500/30";
+  return "bg-blue-500/15 text-blue-400 border-blue-500/30";
 }
 
 type FilterType = "all" | "race" | "qualifying" | "practice" | "sprint";
@@ -100,58 +103,59 @@ export function SimulatePage() {
   }, [rows, filter, searchQuery]);
 
   const filters: { label: string; value: FilterType }[] = [
-    { label: "All Sessions", value: "all" },
+    { label: "All", value: "all" },
     { label: "Race", value: "race" },
-    { label: "Qualifying", value: "qualifying" },
+    { label: "Quali", value: "qualifying" },
     { label: "Practice", value: "practice" },
     { label: "Sprint", value: "sprint" },
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       {/* Alpha Banner */}
-      <div className="relative overflow-hidden border-b border-amber-500/20 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 px-4 py-2 text-center text-sm font-medium text-black shadow-lg shadow-amber-500/10">
+      <div className="border-b border-[var(--warning)]/30 bg-[var(--warning)]/8 px-4 py-1.5 text-center text-[11px] uppercase tracking-[0.1em] text-[var(--warning)]">
         <span className="inline-flex items-center gap-2">
-          <AlertTriangle className="size-4" />
-          This site is in very early alpha — features may be incomplete or change
-          without notice
-          <AlertTriangle className="size-4" />
+          <AlertTriangle className="size-3" />
+          Alpha — features may be incomplete or change without notice
         </span>
       </div>
 
       {/* Hero Section */}
-      <div className="relative overflow-hidden border-b border-white/5">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(225,6,0,0.15),transparent)]" />
-        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+      <div className="border-b border-[var(--border)]">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium uppercase tracking-widest text-white/60">
-                <PlaySquare className="size-3.5" />
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 border border-[var(--border)] bg-[var(--panel)] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+                <PlaySquare className="size-3" />
                 Session Replay
               </div>
-              <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
+              <h1 className="text-xl font-bold">
                 Simulate
               </h1>
-              <p className="max-w-xl text-base leading-relaxed text-white/50">
+              <p className="max-w-xl text-[12px] leading-relaxed text-[var(--muted-foreground)]">
                 Replay any practice, qualifying, or race with full live timing
                 data. Adjustable playback from 0.5x to 16x with team radio, race
                 control messages, and real-time track positions.
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <div className="inline-flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                <Gauge className="size-5 text-red-500" />
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="inline-flex items-center gap-3 border border-[var(--border)] bg-[var(--panel)] px-3 py-2">
+                <Gauge className="size-4 text-[var(--primary)]" />
                 <div>
-                  <div className="text-xs text-white/40">Playback Speed</div>
-                  <div className="font-mono text-sm font-bold">0.5x – 16x</div>
+                  <div className="text-[10px] uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
+                    Speed
+                  </div>
+                  <div className="text-[12px] font-bold">0.5x – 16x</div>
                 </div>
               </div>
-              <div className="inline-flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                <Layers className="size-5 text-red-500" />
+              <div className="inline-flex items-center gap-3 border border-[var(--border)] bg-[var(--panel)] px-3 py-2">
+                <Layers className="size-4 text-[var(--primary)]" />
                 <div>
-                  <div className="text-xs text-white/40">Data Layers</div>
-                  <div className="font-mono text-sm font-bold">
+                  <div className="text-[10px] uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
+                    Layers
+                  </div>
+                  <div className="text-[12px] font-bold">
                     Timing · Radio · GPS
                   </div>
                 </div>
@@ -163,31 +167,31 @@ export function SimulatePage() {
 
       {/* Live Sessions Banner */}
       {liveRows.length > 0 && (
-        <div className="border-b border-white/5 bg-gradient-to-r from-red-500/5 via-transparent to-red-500/5">
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <div className="mb-4 flex items-center gap-2 text-sm text-white/60">
-              <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex size-2 rounded-full bg-red-500" />
+        <div className="border-b border-[var(--border)] bg-[var(--primary)]/5">
+          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+            <div className="mb-3 flex items-center gap-2 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-foreground)]">
+              <span className="relative flex size-1.5">
+                <span className="absolute inline-flex size-full animate-ping bg-red-400 opacity-75" />
+                <span className="relative inline-flex size-1.5 bg-red-500" />
               </span>
               Live Now
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {liveRows.map((session) => (
                 <Link
                   key={`live-${session.sessionKey}`}
                   href="/dashboard"
-                  className="group flex items-center justify-between rounded-xl border border-red-500/20 bg-red-500/5 p-4 transition-all hover:border-red-500/40 hover:bg-red-500/10"
+                  className="group flex items-center justify-between border border-[var(--primary)]/30 bg-[var(--primary)]/8 p-3 transition-colors hover:bg-[var(--primary)]/14"
                 >
                   <div>
-                    <div className="font-bold">{session.meetingName}</div>
-                    <div className="text-sm text-white/50">
+                    <div className="text-[12px] font-bold">{session.meetingName}</div>
+                    <div className="text-[11px] text-[var(--muted-foreground)]">
                       {session.sessionName}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-red-400">
-                    <Radio className="size-4" />
-                    Watch Live
+                  <div className="flex items-center gap-1.5 text-[11px] text-[var(--primary)]">
+                    <Radio className="size-3.5" />
+                    Live
                   </div>
                 </Link>
               ))}
@@ -197,18 +201,18 @@ export function SimulatePage() {
       )}
 
       {/* Filter Bar */}
-      <div className="sticky top-0 z-40 border-b border-white/5 bg-[#0a0a0b]/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2 overflow-x-auto">
-            <Filter className="size-4 shrink-0 text-white/30" />
+      <div className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+          <div className="flex items-center gap-1 overflow-x-auto">
+            <Filter className="mr-1 size-3.5 shrink-0 text-[var(--muted-foreground)]" />
             {filters.map((f) => (
               <button
                 key={f.value}
                 onClick={() => setFilter(f.value)}
-                className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                className={`whitespace-nowrap border px-2.5 py-1 text-[11px] uppercase tracking-[0.1em] transition-colors ${
                   filter === f.value
-                    ? "bg-red-500 text-white"
-                    : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                    ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]"
+                    : "border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 }`}
               >
                 {f.label}
@@ -217,45 +221,44 @@ export function SimulatePage() {
           </div>
 
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/30" />
+            <Search className="absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-[var(--muted-foreground)]" />
             <input
               type="text"
-              placeholder="Search sessions..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 py-2 pl-10 pr-4 text-sm text-white placeholder:text-white/30 focus:border-red-500/50 focus:outline-none focus:ring-1 focus:ring-red-500/30 sm:w-64"
+              className="w-full border border-[var(--border)] bg-[var(--panel)] py-1.5 pl-8 pr-3 text-[12px] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)] focus:outline-none sm:w-56"
             />
           </div>
         </div>
       </div>
 
       {/* Session Grid */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
+            <h2 className="text-[13px] font-bold">
               Completed Sessions
             </h2>
-            <p className="mt-1 text-sm text-white/40">
-              {filteredRows.length} session
-              {filteredRows.length !== 1 ? "s" : ""} available for replay
+            <p className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">
+              <NumberFlow value={filteredRows.length} /> session{filteredRows.length !== 1 ? "s" : ""} available
             </p>
           </div>
         </div>
 
         {/* Loading State */}
         {catalogQuery.isLoading && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="animate-pulse rounded-xl border border-white/5 bg-white/[0.03] p-6"
+                className="animate-pulse border border-[var(--border)] bg-[var(--panel)] p-4"
               >
-                <div className="mb-4 h-5 w-2/3 rounded bg-white/10" />
-                <div className="mb-2 h-4 w-1/2 rounded bg-white/5" />
-                <div className="mb-6 h-4 w-1/3 rounded bg-white/5" />
-                <div className="h-10 w-28 rounded-lg bg-white/5" />
+                <div className="mb-3 h-4 w-2/3 bg-white/5" />
+                <div className="mb-2 h-3 w-1/2 bg-white/5" />
+                <div className="mb-4 h-3 w-1/3 bg-white/5" />
+                <div className="h-7 w-24 bg-white/5" />
               </div>
             ))}
           </div>
@@ -263,12 +266,12 @@ export function SimulatePage() {
 
         {/* Empty State */}
         {!catalogQuery.isLoading && filteredRows.length === 0 && (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-white/5 bg-white/[0.02] py-16 text-center">
-            <Flag className="mb-4 size-10 text-white/20" />
-            <div className="mb-1 text-lg font-semibold text-white/60">
+          <div className="flex flex-col items-center justify-center border border-[var(--border)] bg-[var(--panel)] py-12 text-center">
+            <Flag className="mb-3 size-6 text-[var(--muted-foreground)]" />
+            <div className="text-[12px] font-semibold text-[var(--muted-foreground)]">
               No sessions found
             </div>
-            <div className="text-sm text-white/30">
+            <div className="mt-1 text-[11px] text-[var(--muted-foreground)]">
               {searchQuery
                 ? "Try adjusting your search query"
                 : "No completed sessions match this filter yet"}
@@ -277,61 +280,61 @@ export function SimulatePage() {
         )}
 
         {/* Session Cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {filteredRows.map((session) => (
             <Link
               key={`sim-${session.sessionKey}`}
               href={`/sessions/${session.sessionKey}/simulate`}
-              className="group relative flex flex-col overflow-hidden rounded-xl border border-white/[0.08] bg-white/[0.03] transition-all hover:border-white/15 hover:bg-white/[0.05]"
+              className="group relative flex flex-col overflow-hidden border border-[var(--border)] bg-[var(--panel)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--panel-elevated)]"
             >
               {/* Card Header */}
-              <div className="border-b border-white/5 p-5">
-                <div className="mb-3 flex items-center justify-between">
+              <div className="border-b border-[var(--border)] px-4 py-3">
+                <div className="mb-2 flex items-center justify-between">
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${sessionTypeColor(session.sessionType)}`}
+                    className={`inline-flex items-center gap-1 border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${sessionTypeColor(session.sessionType)}`}
                   >
                     {session.sessionType}
                   </span>
                   {session.replayReady && (
-                    <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-400">
-                      <Play className="size-3" />
+                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400">
+                      <Play className="size-2.5" />
                       Ready
                     </span>
                   )}
                 </div>
-                <h3 className="text-lg font-bold tracking-tight group-hover:text-white">
+                <h3 className="text-[13px] font-bold group-hover:text-[var(--foreground)]">
                   {session.meetingName}
                 </h3>
-                <div className="mt-1 text-sm text-white/50">
+                <div className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">
                   {session.sessionName}
                 </div>
               </div>
 
               {/* Card Body */}
-              <div className="flex grow flex-col justify-between p-5">
-                <div className="mb-4 grid grid-cols-2 gap-3">
-                  <div className="flex items-center gap-2 text-sm text-white/40">
-                    <Calendar className="size-3.5" />
+              <div className="flex grow flex-col justify-between px-4 py-3">
+                <div className="mb-3 grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
+                    <Calendar className="size-3" />
                     {formatDate(session.startsAt)}
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-white/40">
-                    <Clock className="size-3.5" />
+                  <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
+                    <Clock className="size-3" />
                     {formatTime(session.startsAt)}
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-white/40">
-                    <Layers className="size-3.5" />
-                    {session.frameCount.toLocaleString()} frames
+                  <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
+                    <Layers className="size-3" />
+                    <NumberFlow value={session.frameCount} /> frames
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-white/40">
-                    <Timer className="size-3.5" />
-                    {session.driverCount} drivers
+                  <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
+                    <Timer className="size-3" />
+                    <NumberFlow value={session.driverCount} /> drivers
                   </div>
                 </div>
 
                 {/* Action */}
-                <div className="flex items-center justify-between rounded-lg bg-white/5 px-4 py-2.5 text-sm font-medium text-white/70 transition-colors group-hover:bg-red-500/20 group-hover:text-red-400">
+                <div className="flex items-center justify-between border-t border-[var(--border)] pt-2.5 text-[11px] uppercase tracking-[0.1em] text-[var(--muted-foreground)] transition-colors group-hover:text-[var(--primary)]">
                   <span>Open Replay</span>
-                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
                 </div>
               </div>
             </Link>
@@ -340,8 +343,8 @@ export function SimulatePage() {
       </div>
 
       {/* Features Footer */}
-      <div className="border-t border-white/5 bg-white/[0.01]">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+      <div className="border-t border-[var(--border)]">
+        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
           {[
             {
               icon: PlaySquare,
@@ -364,10 +367,10 @@ export function SimulatePage() {
               desc: "Watch drivers move around the circuit in real-time 2D and 3D views",
             },
           ].map((feature) => (
-            <div key={feature.title} className="space-y-2">
-              <feature.icon className="size-5 text-red-500" />
-              <div className="text-sm font-semibold">{feature.title}</div>
-              <div className="text-sm leading-relaxed text-white/40">
+            <div key={feature.title} className="space-y-1.5">
+              <feature.icon className="size-4 text-[var(--primary)]" />
+              <div className="text-[12px] font-semibold">{feature.title}</div>
+              <div className="text-[11px] leading-relaxed text-[var(--muted-foreground)]">
                 {feature.desc}
               </div>
             </div>

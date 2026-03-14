@@ -19,6 +19,8 @@ import {
   SkipForward,
 } from "lucide-react";
 
+import NumberFlow from "@number-flow/react";
+
 import {
   fetchRaceControl,
   fetchReplayChunks,
@@ -36,6 +38,7 @@ import {
 import { ReplayTrackCanvas } from "@/components/replay-track-canvas";
 import { TrackCanvas3D } from "@/components/track-canvas-3d";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getSoftTeamColor } from "@/lib/utils";
 
 const PLAYBACK_SPEEDS = [0.5, 1, 2, 5, 10, 16] as const;
 
@@ -1024,34 +1027,38 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-white">
-        <Skeleton className="m-4 h-[calc(100vh-40px)] rounded-xl bg-white/10" />
+      <div className="min-h-screen bg-[var(--workspace-bg)] text-[var(--foreground)]">
+        <Skeleton className="m-4 h-[calc(100vh-40px)] border border-[var(--border)] bg-white/10" />
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0a0a0a] text-white">
+    <div className="flex min-h-screen flex-col bg-[var(--workspace-bg)] text-[var(--foreground)]">
       {/* Transport Bar */}
-      <div className="shrink-0 border-b border-white/10 bg-[#111]">
+      <div className="shrink-0 border-b border-[var(--workspace-border)] bg-[var(--workspace-surface)]">
         {/* Controls row */}
         <div className="flex items-center justify-between px-4 py-2">
-          <div className="flex items-center gap-3 text-sm text-white/70">
-            <span className="font-medium text-white">{sessionName}</span>
-            <span className="text-white/30">•</span>
+          <div className="flex items-center gap-3 text-sm text-[color-mix(in_oklab,var(--foreground),transparent_28%)]">
+            <span className="font-medium text-[var(--foreground)]">
+              {sessionName}
+            </span>
+            <span className="text-[color-mix(in_oklab,var(--foreground),transparent_60%)]">
+              •
+            </span>
             <span>{countryName ?? meetingName}</span>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={jumpBackward}
-              className="rounded px-1.5 py-1 text-xs text-white/40 hover:bg-white/10 hover:text-white"
+              className="px-1.5 py-1 text-xs text-[var(--workspace-muted)] hover:bg-[var(--workspace-subtle)] hover:text-[var(--foreground)]"
             >
               <SkipBack className="size-3.5" />
             </button>
             <button
               onClick={togglePlayback}
-              className={`rounded px-3 py-1.5 text-sm font-bold ${isPlaying ? "bg-red-600 text-white" : "bg-white/10 text-white hover:bg-white/15"}`}
+              className={`px-3 py-1.5 text-sm font-bold ${isPlaying ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "bg-[var(--workspace-subtle)] text-[var(--foreground)] hover:bg-[var(--muted)]"}`}
             >
               {isPlaying ? (
                 <Pause className="inline size-3.5" />
@@ -1061,7 +1068,7 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
             </button>
             <button
               onClick={jumpForward}
-              className="rounded px-1.5 py-1 text-xs text-white/40 hover:bg-white/10 hover:text-white"
+              className="px-1.5 py-1 text-xs text-[var(--workspace-muted)] hover:bg-[var(--workspace-subtle)] hover:text-[var(--foreground)]"
             >
               <SkipForward className="size-3.5" />
             </button>
@@ -1069,28 +1076,28 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
               <button
                 key={speed}
                 onClick={() => setSpeedIndex(i)}
-                className={`rounded px-2 py-1.5 text-xs font-bold transition-colors ${speedIndex === i ? "bg-white text-black" : "text-white/50 hover:text-white"}`}
+                className={`px-2 py-1.5 text-xs font-bold transition-colors ${speedIndex === i ? "bg-[var(--foreground)] text-[var(--workspace-bg)]" : "text-[var(--workspace-muted)] hover:text-[var(--foreground)]"}`}
               >
-                {speed}x
+                <NumberFlow value={speed} suffix="x" />
               </button>
             ))}
-            <div className="ml-3 border-l border-white/10 pl-3 font-mono text-sm">
-              <span className="text-white/50">Elapsed: </span>
-              <span className="font-bold text-white">
+            <div className="ml-3 border-l border-[var(--workspace-border)] pl-3 font-mono text-sm">
+              <span className="text-[var(--workspace-muted)]">Elapsed: </span>
+              <span className="font-bold text-[var(--foreground)]">
                 {formatElapsed(
                   sessionStartTime,
                   interpolatedTime ?? currentEvent?.emittedAt,
                 )}
               </span>
             </div>
-            <div className="ml-2 font-mono text-sm text-white/50">
+            <div className="ml-2 font-mono text-sm text-[var(--workspace-muted)]">
               {formatClock(interpolatedTime ?? currentEvent?.emittedAt)}
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-xs text-white/50">
-            <span>{driverCount} drivers</span>
-            <span>{rcCount} RC msgs</span>
+          <div className="flex items-center gap-4 text-xs text-[var(--workspace-muted)]">
+            <span><NumberFlow value={driverCount} /> drivers</span>
+            <span><NumberFlow value={rcCount} /> RC msgs</span>
           </div>
         </div>
 
@@ -1113,21 +1120,21 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
         {/* Left: Track Canvas (clone-style, fills full space) */}
         <div
           ref={trackPanelRef}
-          className="flex min-w-0 flex-1 flex-col bg-[#0a0a0a]"
+          className="flex min-w-0 flex-1 flex-col bg-[var(--workspace-bg)]"
         >
           <div className="relative min-h-0 flex-1 overflow-hidden p-4">
             {/* 2D/3D Toggle */}
             <div className="absolute left-7 top-7 z-10 flex items-center gap-2">
               <button
                 onClick={() => setViewMode((v) => (v === "2d" ? "3d" : "2d"))}
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm hover:bg-black/80"
+                className="flex items-center gap-1.5 border-[var(--border)] border border-[var(--workspace-border)] bg-[var(--workspace-overlay)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] bg-[var(--panel)] hover:bg-[var(--workspace-surface)]"
               >
                 <Layers3 className="size-3.5" />
                 {viewMode.toUpperCase()}
               </button>
               <Link
                 href="/simulate"
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm hover:bg-black/80"
+                className="flex items-center gap-1.5 border-[var(--border)] border border-[var(--workspace-border)] bg-[var(--workspace-overlay)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] bg-[var(--panel)] hover:bg-[var(--workspace-surface)]"
               >
                 <ArrowLeft className="size-3.5" />
                 Exit
@@ -1141,7 +1148,7 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                   }
                   await trackPanelRef.current.requestFullscreen();
                 }}
-                className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/70 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm hover:bg-black/80"
+                className="flex items-center gap-1.5 border-[var(--border)] border border-[var(--workspace-border)] bg-[var(--workspace-overlay)] px-3 py-1.5 text-xs font-medium text-[var(--foreground)] bg-[var(--panel)] hover:bg-[var(--workspace-surface)]"
               >
                 {isTrackFullscreen ? (
                   <Minimize2 className="size-3.5" />
@@ -1153,7 +1160,7 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
             </div>
 
             {viewMode === "3d" ? (
-              <div className="h-full overflow-hidden rounded-xl border border-white/10">
+              <div className="h-full overflow-hidden border border-[var(--border)] border border-[var(--workspace-border)]">
                 <TrackCanvas3D
                   model={currentModel}
                   nextModel={nextModel}
@@ -1189,36 +1196,36 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
 
             {/* Weather Overlay */}
             {weather ? (
-              <div className="absolute right-7 top-7 z-10 rounded-lg border border-white/10 bg-black/70 px-3 py-2 text-xs backdrop-blur-sm">
-                <div className="mb-1 text-[9px] uppercase tracking-wider text-white/60">
+              <div className="absolute right-7 top-7 z-10 border-[var(--border)] border border-[var(--workspace-border)] bg-[var(--workspace-overlay)] px-3 py-2 text-xs bg-[var(--panel)]">
+                <div className="mb-1 text-[9px] uppercase tracking-wider text-[var(--workspace-muted)]">
                   Weather
                 </div>
-                <div className="space-y-1 text-white">
+                <div className="space-y-1 text-[var(--foreground)]">
                   <div className="flex justify-between gap-4">
-                    <span className="text-white/60">Air</span>
-                    <span>{weather.airTemp ?? "--"}°C</span>
+                    <span className="text-[var(--workspace-muted)]">Air</span>
+                    <span>{weather.airTemp != null ? <NumberFlow value={Number(weather.airTemp)} suffix="°C" /> : "--"}</span>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <span className="text-white/60">Track</span>
-                    <span>{weather.trackTemp ?? "--"}°C</span>
+                    <span className="text-[var(--workspace-muted)]">Track</span>
+                    <span>{weather.trackTemp != null ? <NumberFlow value={Number(weather.trackTemp)} suffix="°C" /> : "--"}</span>
                   </div>
                 </div>
               </div>
             ) : null}
 
             {isTrackFullscreen ? (
-              <div className="absolute inset-x-6 bottom-6 z-20 rounded-2xl border border-white/10 bg-black/78 p-3 backdrop-blur-md">
+              <div className="absolute inset-x-6 bottom-6 z-20 border border-[var(--border)] border border-[var(--workspace-border)] bg-[var(--workspace-overlay)] p-3 bg-[var(--panel)]">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <button
                       onClick={jumpBackward}
-                      className="rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+                      className="border-[var(--border)] border border-[var(--workspace-border)] bg-[var(--workspace-subtle)] px-2 py-2 text-[var(--workspace-muted)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                     >
                       <SkipBack className="size-4" />
                     </button>
                     <button
                       onClick={togglePlayback}
-                      className={`rounded-lg px-3 py-2 text-sm font-bold transition-colors ${isPlaying ? "bg-red-600 text-white" : "bg-white text-black hover:bg-white/90"}`}
+                      className={`border-[var(--border)] px-3 py-2 text-sm font-bold transition-colors ${isPlaying ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "bg-[var(--foreground)] text-[var(--workspace-bg)] hover:opacity-90"}`}
                     >
                       {isPlaying ? (
                         <Pause className="size-4" />
@@ -1228,27 +1235,29 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                     </button>
                     <button
                       onClick={jumpForward}
-                      className="rounded-lg border border-white/10 bg-white/5 px-2 py-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+                      className="border-[var(--border)] border border-[var(--workspace-border)] bg-[var(--workspace-subtle)] px-2 py-2 text-[var(--workspace-muted)] transition-colors hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                     >
                       <SkipForward className="size-4" />
                     </button>
                   </div>
 
-                  <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-1">
+                  <div className="flex items-center gap-1 border-[var(--border)] border border-[var(--workspace-border)] bg-[var(--workspace-subtle)] p-1">
                     {PLAYBACK_SPEEDS.map((speed, index) => (
                       <button
                         key={speed}
                         onClick={() => setSpeedIndex(index)}
-                        className={`rounded px-2 py-1 text-[11px] font-bold transition-colors ${speedIndex === index ? "bg-white text-black" : "text-white/55 hover:text-white"}`}
+                        className={`px-2 py-1 text-[11px] font-bold transition-colors ${speedIndex === index ? "bg-[var(--foreground)] text-[var(--workspace-bg)]" : "text-[var(--workspace-muted)] hover:text-[var(--foreground)]"}`}
                       >
-                        {speed}x
+                        <NumberFlow value={speed} suffix="x" />
                       </button>
                     ))}
                   </div>
 
-                  <div className="flex items-center gap-4 font-mono text-xs text-white/75">
+                  <div className="flex items-center gap-4 font-mono text-xs text-[color-mix(in_oklab,var(--foreground),transparent_20%)]">
                     <span>
-                      <span className="text-white/45">Elapsed </span>
+                      <span className="text-[var(--workspace-muted)]">
+                        Elapsed{" "}
+                      </span>
                       {formatElapsed(
                         sessionStartTime,
                         interpolatedTime ?? currentEvent?.emittedAt,
@@ -1272,7 +1281,7 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                     className="block h-2 w-full cursor-pointer accent-red-600"
                     disabled={timelineEvents.length === 0}
                   />
-                  <div className="min-w-[72px] text-right font-mono text-xs text-white/55">
+                  <div className="min-w-[72px] text-right font-mono text-xs text-[var(--workspace-muted)]">
                     {currentIndex + 1} / {timelineEvents.length}
                   </div>
                 </div>
@@ -1285,12 +1294,12 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                 {raceControlMessages.slice(0, 3).map((msg) => (
                   <div
                     key={`overlay-${msg.sequence}`}
-                    className="rounded-md border border-white/[0.12] bg-black/75 px-3 py-2 text-xs backdrop-blur-sm"
+                    className="rounded-md border border-[var(--workspace-border)] bg-[var(--workspace-overlay)] px-3 py-2 text-xs bg-[var(--panel)]"
                   >
-                    <div className="text-[9px] uppercase tracking-wider text-white/50">
+                    <div className="text-[9px] uppercase tracking-wider text-[var(--workspace-muted)]">
                       {msg.flag ?? msg.category}
                     </div>
-                    <div className="mt-1 leading-tight text-white">
+                    <div className="mt-1 leading-tight text-[var(--foreground)]">
                       {msg.body}
                     </div>
                   </div>
@@ -1299,7 +1308,7 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
             ) : null}
 
             {/* Sector Legend */}
-            <div className="absolute bottom-7 left-7 z-10 flex items-center gap-3 rounded-lg border border-white/10 bg-black/70 px-3 py-1.5 text-[10px] backdrop-blur-sm">
+            <div className="absolute bottom-7 left-7 z-10 flex items-center gap-3 border-[var(--border)] border border-[var(--workspace-border)] bg-[var(--workspace-overlay)] px-3 py-1.5 text-[10px] bg-[var(--panel)]">
               <span className="flex items-center gap-1">
                 <span className="h-0.5 w-4 bg-red-500" /> S1
               </span>
@@ -1314,17 +1323,19 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
         </div>
 
         {/* Right: Timing Tower */}
-        <div className="flex w-[480px] shrink-0 flex-col border-l border-white/10 bg-[#0d0d0d] xl:w-[540px]">
+        <div className="flex w-[480px] shrink-0 flex-col border-l border-[var(--workspace-border)] bg-[var(--workspace-surface)] xl:w-[540px]">
           {/* Timing Header */}
-          <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+          <div className="flex items-center justify-between border-b border-[var(--workspace-border)] px-4 py-3">
             <div className="flex items-center gap-3">
               {/* Delay Control */}
-              <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1">
-                <Clock className="size-3.5 text-white/50" />
-                <span className="text-xs text-white/50">DELAY</span>
+              <div className="flex items-center gap-1 border-[var(--border)] border border-[var(--workspace-border)] bg-[var(--workspace-subtle)] px-2 py-1">
+                <Clock className="size-3.5 text-[var(--workspace-muted)]" />
+                <span className="text-xs text-[var(--workspace-muted)]">
+                  DELAY
+                </span>
                 <button
                   onClick={() => setDelayMs((v) => Math.max(0, v - 100))}
-                  className="rounded px-1 text-white/40 hover:text-white"
+                  className="px-1 text-[var(--workspace-muted)] hover:text-[var(--foreground)]"
                 >
                   <Minus className="size-3" />
                 </button>
@@ -1333,7 +1344,7 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                 </span>
                 <button
                   onClick={() => setDelayMs((v) => v + 100)}
-                  className="rounded px-1 text-white/40 hover:text-white"
+                  className="px-1 text-[var(--workspace-muted)] hover:text-[var(--foreground)]"
                 >
                   <Plus className="size-3" />
                 </button>
@@ -1343,14 +1354,19 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
             {/* Race Progress */}
             {totalLaps ? (
               <div className="flex items-center gap-3">
-                <span className="text-xs text-white/50">RACE PROGRESS</span>
+                <span className="text-xs text-[var(--workspace-muted)]">
+                  RACE PROGRESS
+                </span>
                 <div>
                   <span className="text-lg font-bold text-red-500">
-                    {currentLap}
+                    <NumberFlow value={currentLap} />
                   </span>
-                  <span className="text-white/40"> / {totalLaps}</span>
+                  <span className="text-[var(--workspace-muted)]">
+                    {" "}
+                    / <NumberFlow value={totalLaps} />
+                  </span>
                 </div>
-                <div className="h-1 w-16 overflow-hidden rounded-full bg-white/10">
+                <div className="h-1 w-16 overflow-hidden bg-white/10">
                   <div
                     className="h-full bg-red-600 transition-all"
                     style={{
@@ -1363,7 +1379,7 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
           </div>
 
           {/* Live Timing Header */}
-          <div className="border-b border-white/10 px-4 py-2.5">
+          <div className="border-b border-[var(--workspace-border)] px-4 py-2.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="size-2 rounded-full bg-red-500" />
@@ -1371,11 +1387,11 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                   Live Timing
                 </span>
               </div>
-              <span className="rounded bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white/60">
-                {driverCount} drivers
+              <span className="bg-[var(--workspace-subtle)] px-2 py-0.5 text-[10px] font-medium text-[var(--workspace-muted)]">
+                <NumberFlow value={driverCount} /> drivers
               </span>
             </div>
-            <div className="mt-1.5 flex items-center gap-3 text-[10px] text-white/50">
+            <div className="mt-1.5 flex items-center gap-3 text-[10px] text-[var(--workspace-muted)]">
               <span className="flex items-center gap-1">
                 <span className="size-1.5 rounded-full bg-purple-400" /> Fastest
               </span>
@@ -1390,7 +1406,7 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
           </div>
 
           {/* Column Headers */}
-          <div className="grid grid-cols-[40px_1fr_60px_60px_100px_44px_40px] items-center gap-px border-b border-white/10 bg-white/[0.03] px-2 py-2 text-[10px] font-medium uppercase tracking-wider text-white/40">
+          <div className="grid grid-cols-[40px_1fr_60px_60px_100px_44px_40px] items-center gap-px border-b border-[var(--workspace-border)] bg-[var(--workspace-subtle)] px-2 py-2 text-[10px] font-medium uppercase tracking-wider text-[var(--workspace-muted)]">
             <div className="text-center">POS</div>
             <div />
             <div className="text-right">GAP</div>
@@ -1416,14 +1432,14 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                       setExpandedDriver(isExpanded ? null : row.racingNumber);
                       setSelectedDriver(isSelected ? null : row.racingNumber);
                     }}
-                    className={`grid cursor-pointer grid-cols-[40px_1fr_60px_60px_100px_44px_40px] items-center gap-px border-b border-white/5 px-2 py-2 transition-colors ${isSelected ? "bg-white/10" : "hover:bg-white/[0.04]"} ${isRetired ? "opacity-40" : ""}`}
+                    className={`grid cursor-pointer grid-cols-[40px_1fr_60px_60px_100px_44px_40px] items-center gap-px border-b border-[var(--workspace-border)] px-2 py-2 transition-colors ${isSelected ? "bg-[var(--workspace-subtle)]" : "hover:bg-[color-mix(in_oklab,var(--foreground),transparent_94%)]"} ${isRetired ? "opacity-40" : ""}`}
                   >
                     {/* Position */}
                     <div className="flex justify-center">
                       <span
-                        className={`flex size-7 items-center justify-center rounded text-xs font-bold ${knownPosition && row.position <= 3 ? "bg-red-600 text-white" : "bg-white/10 text-white"}`}
+                        className={`flex size-7 items-center justify-center text-xs font-bold ${knownPosition && row.position <= 3 ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "bg-[var(--workspace-subtle)] text-[var(--foreground)]"}`}
                       >
-                        {knownPosition ? row.position : "TBD"}
+                        {knownPosition ? <NumberFlow value={row.position} /> : "TBD"}
                       </span>
                     </div>
 
@@ -1434,42 +1450,48 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                           src={row.headshotUrl}
                           alt={row.shortCode ?? row.racingNumber}
                           className="size-8 shrink-0 rounded-full border-2 object-cover object-top"
-                          style={{ borderColor: `#${row.teamColor}` }}
+                          style={{
+                            borderColor: getSoftTeamColor(row.teamColor),
+                          }}
                         />
                       ) : (
                         <div
                           className="flex size-8 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-bold"
-                          style={{ borderColor: `#${row.teamColor}` }}
+                          style={{
+                            borderColor: getSoftTeamColor(row.teamColor),
+                          }}
                         >
                           {row.shortCode ?? row.racingNumber}
                         </div>
                       )}
                       <div
                         className="h-8 w-1 shrink-0 rounded-full"
-                        style={{ backgroundColor: `#${row.teamColor}` }}
+                        style={{
+                          backgroundColor: getSoftTeamColor(row.teamColor),
+                        }}
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
                           <span className="text-sm font-bold">
                             {row.shortCode ?? row.racingNumber}
                           </span>
-                          <span className="text-[10px] text-white/40">
+                          <span className="text-[10px] text-[var(--workspace-muted)]">
                             #{row.racingNumber}
                           </span>
                           {isPit && (
-                            <span className="rounded bg-yellow-500/20 px-1 py-0.5 text-[9px] font-bold text-yellow-400">
+                            <span className="bg-yellow-500/20 px-1 py-0.5 text-[9px] font-bold text-yellow-400">
                               PIT
                             </span>
                           )}
                         </div>
-                        <div className="truncate text-[10px] text-white/40">
+                        <div className="truncate text-[10px] text-[var(--workspace-muted)]">
                           {row.name}
                         </div>
                       </div>
                     </div>
 
                     {/* GAP */}
-                    <div className="text-right font-mono text-xs text-white/70">
+                    <div className="text-right font-mono text-xs text-[color-mix(in_oklab,var(--foreground),transparent_28%)]">
                       {row.position === 1 ? (
                         <span className="font-bold text-red-400">P1</span>
                       ) : !knownPosition ? (
@@ -1480,7 +1502,7 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                     </div>
 
                     {/* Interval */}
-                    <div className="text-right font-mono text-xs text-white/50">
+                    <div className="text-right font-mono text-xs text-[var(--workspace-muted)]">
                       {!knownPosition
                         ? "TBD"
                         : row.position === 1
@@ -1501,13 +1523,13 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                         ))
                       ) : (
                         <>
-                          <span className="font-mono text-[10px] text-white/20">
+                          <span className="font-mono text-[10px] text-[color-mix(in_oklab,var(--foreground),transparent_72%)]">
                             --
                           </span>
-                          <span className="font-mono text-[10px] text-white/20">
+                          <span className="font-mono text-[10px] text-[color-mix(in_oklab,var(--foreground),transparent_72%)]">
                             --
                           </span>
-                          <span className="font-mono text-[10px] text-white/20">
+                          <span className="font-mono text-[10px] text-[color-mix(in_oklab,var(--foreground),transparent_72%)]">
                             --
                           </span>
                         </>
@@ -1522,61 +1544,63 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                     </div>
 
                     {/* LAP */}
-                    <div className="text-center font-mono text-xs text-white/50">
-                      {row.replayLap ?? row.numberOfLaps ?? "--"}
+                    <div className="text-center font-mono text-xs text-[var(--workspace-muted)]">
+                      {(row.replayLap ?? row.numberOfLaps) != null ? <NumberFlow value={row.replayLap ?? row.numberOfLaps!} /> : "--"}
                     </div>
                   </div>
 
                   {/* Expanded Detail */}
                   {isExpanded && (
-                    <div className="grid grid-cols-6 gap-px border-b border-white/10 bg-white/[0.03]">
+                    <div className="grid grid-cols-6 gap-px border-b border-[var(--workspace-border)] bg-[var(--workspace-subtle)]">
                       <div className="p-3">
-                        <div className="text-[9px] uppercase tracking-wider text-white/40">
+                        <div className="text-[9px] uppercase tracking-wider text-[var(--workspace-muted)]">
                           SPEED
                         </div>
                         <div className="mt-1 flex items-center gap-1">
                           <span className="text-green-400 text-xs font-bold">
-                            {row.liveSpeed ?? row.speedTrap ?? 0}
+                            <NumberFlow value={row.liveSpeed ?? row.speedTrap ?? 0} />
                           </span>
-                          <span className="text-[10px] text-white/40">
+                          <span className="text-[10px] text-[var(--workspace-muted)]">
                             km/h
                           </span>
                         </div>
                       </div>
                       <div className="p-3">
-                        <div className="text-[9px] uppercase tracking-wider text-white/40">
+                        <div className="text-[9px] uppercase tracking-wider text-[var(--workspace-muted)]">
                           GEAR
                         </div>
                         <div className="mt-1 text-lg font-bold">
-                          {row.liveGear ?? "-"}
+                          {row.liveGear != null ? <NumberFlow value={row.liveGear} /> : "-"}
                         </div>
                       </div>
                       <div className="p-3">
-                        <div className="text-[9px] uppercase tracking-wider text-white/40">
+                        <div className="text-[9px] uppercase tracking-wider text-[var(--workspace-muted)]">
                           RPM
                         </div>
                         <div className="mt-1 text-red-400 font-bold">
-                          {row.liveRpm ?? "-"}
+                          {row.liveRpm != null ? <NumberFlow value={row.liveRpm} /> : "-"}
                         </div>
                       </div>
                       <div className="p-3">
-                        <div className="text-[9px] uppercase tracking-wider text-white/40">
+                        <div className="text-[9px] uppercase tracking-wider text-[var(--workspace-muted)]">
                           DRS / BAT
                         </div>
                         <div className="mt-1 flex items-center gap-2 text-xs">
                           <span className="font-bold text-cyan-300">
-                            {row.liveDrs ?? "-"}
+                            {row.liveDrs != null ? <NumberFlow value={row.liveDrs} /> : "-"}
                           </span>
-                          <span className="text-white/40">/</span>
+                          <span className="text-[var(--workspace-muted)]">
+                            /
+                          </span>
                           <span className="font-bold text-amber-300">
                             {row.liveBattery == null
                               ? "--"
-                              : `${row.liveBattery}%`}
+                              : <NumberFlow value={row.liveBattery} suffix="%" />}
                           </span>
                         </div>
                       </div>
                       <div className="p-3">
-                        <div className="text-[9px] uppercase tracking-wider text-white/40">
+                        <div className="text-[9px] uppercase tracking-wider text-[var(--workspace-muted)]">
                           BEST LAP
                         </div>
                         <div className="mt-1 font-mono text-xs">
@@ -1584,17 +1608,17 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                         </div>
                       </div>
                       <div className="p-3">
-                        <div className="text-[9px] uppercase tracking-wider text-white/40">
+                        <div className="text-[9px] uppercase tracking-wider text-[var(--workspace-muted)]">
                           THROTTLE / BRAKE
                         </div>
                         <div className="mt-2 flex gap-1">
-                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--workspace-subtle)]">
                             <div
                               className="h-full bg-green-500"
                               style={{ width: `${row.liveThrottle ?? 0}%` }}
                             />
                           </div>
-                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
+                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--workspace-subtle)]">
                             <div
                               className="h-full bg-red-500"
                               style={{ width: `${row.liveBrake ?? 0}%` }}
@@ -1603,7 +1627,7 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                         </div>
                       </div>
                       {/* Sector summary */}
-                      <div className="col-span-5 flex items-center gap-4 border-t border-white/5 px-3 py-2 text-xs">
+                      <div className="col-span-5 flex items-center gap-4 border-t border-[var(--workspace-border)] px-3 py-2 text-xs">
                         {["S1", "S2", "S3"].map((label, i) => {
                           const sector = row.sectors?.[i];
                           return (
@@ -1611,7 +1635,9 @@ export function F1DashReplay({ sessionKey }: { sessionKey: number }) {
                               key={label}
                               className="flex items-center gap-1.5"
                             >
-                              <span className="text-white/40">{label}</span>
+                              <span className="text-[var(--workspace-muted)]">
+                                {label}
+                              </span>
                               <span
                                 className={`font-mono ${sector ? sectorColor(sector) : "text-white/20"}`}
                               >

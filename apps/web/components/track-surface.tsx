@@ -11,6 +11,8 @@ import {
   TimerReset,
 } from "lucide-react";
 
+import NumberFlow from "@number-flow/react";
+
 import {
   Card,
   CardContent,
@@ -18,6 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getSoftTeamColor, getSoftTeamColorRgba } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { type TrackSurfaceModel } from "@/lib/session-insights";
 
@@ -344,7 +347,7 @@ export function TrackSurface({
 
   if (!model) {
     return (
-      <Card className="bg-[var(--panel)]/95">
+      <Card>
         <CardHeader>
           <CardTitle>Track surface unavailable</CardTitle>
           <CardDescription>
@@ -356,7 +359,7 @@ export function TrackSurface({
   }
 
   return (
-    <Card className="overflow-hidden bg-[linear-gradient(180deg,color-mix(in_oklab,var(--panel),white_4%),var(--panel-elevated))]">
+    <Card className="overflow-hidden">
       <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -364,10 +367,10 @@ export function TrackSurface({
             <CardDescription>{model.subtitle}</CardDescription>
           </div>
           <span
-            className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${
+            className={`border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${
               model.mode === "position-live"
-                ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
-                : "bg-[var(--muted)] text-[var(--muted-foreground)]"
+                ? "border-[var(--accent)]/40 bg-[var(--accent)]/10 text-[var(--accent)]"
+                : "border-[var(--border)] text-[var(--muted-foreground)]"
             }`}
           >
             {model.mode === "position-live"
@@ -379,36 +382,48 @@ export function TrackSurface({
         </div>
       </CardHeader>
       <CardContent className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="relative overflow-hidden rounded-(--radius-lg) border border-[var(--border)] bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.08),transparent_34%),linear-gradient(180deg,#13151b,#090b10)] p-4 text-white">
+        <div className="relative overflow-hidden border border-[var(--border)] bg-[var(--background)] p-3 text-[var(--foreground)]">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-[11px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
             <div className="flex flex-wrap gap-2">
-            <span className="rounded-full border border-white/12 bg-white/6 px-2.5 py-1 text-white/72">
-              Circuit map
-            </span>
-            <span className="rounded-full border border-white/12 bg-white/6 px-2.5 py-1 text-white/72">
-              {model.currentLap ?? "--"}/{model.totalLaps ?? "--"} laps
-            </span>
-            {replayControls?.viewMode ? (
-              <span className="rounded-full border border-white/12 bg-white/6 px-2.5 py-1 text-white/72">
-                {replayControls.viewMode.toUpperCase()} view
+              <span className="border border-[var(--border)] px-2 py-0.5 text-[10px] text-[var(--muted-foreground)]">
+                Circuit map
               </span>
-            ) : null}
+              <span className="border border-[var(--border)] px-2 py-0.5 text-[10px] text-[var(--muted-foreground)]">
+                {model.currentLap != null ? <NumberFlow value={model.currentLap} /> : "--"}/{model.totalLaps != null ? <NumberFlow value={model.totalLaps} /> : "--"} laps
+              </span>
+              {replayControls?.viewMode ? (
+                <span className="border border-[var(--border)] px-2 py-0.5 text-[10px] text-[var(--muted-foreground)]">
+                  {replayControls.viewMode.toUpperCase()} view
+                </span>
+              ) : null}
             </div>
             {replayControls ? (
               <div className="flex flex-wrap gap-2">
                 {replayControls.onToggleViewMode ? (
-                  <Button variant="ghost" size="sm" onClick={replayControls.onToggleViewMode}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={replayControls.onToggleViewMode}
+                  >
                     {replayControls.viewMode === "3d" ? "2D" : "3D"}
                   </Button>
                 ) : null}
                 {replayControls.onCycleSpeed ? (
-                  <Button variant="ghost" size="sm" onClick={replayControls.onCycleSpeed}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={replayControls.onCycleSpeed}
+                  >
                     <TimerReset className="size-4" />
                     {replayControls.speedLabel ?? "1.0x"}
                   </Button>
                 ) : null}
                 {replayControls.onToggleExpanded ? (
-                  <Button variant="ghost" size="sm" onClick={replayControls.onToggleExpanded}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={replayControls.onToggleExpanded}
+                  >
                     {replayControls.isExpanded ? (
                       <>
                         <Minimize className="size-4" />
@@ -426,21 +441,25 @@ export function TrackSurface({
             ) : null}
           </div>
 
-          <div className={`relative aspect-[16/10] rounded-(--radius-md) border border-white/10 bg-[radial-gradient(circle_at_50%_35%,rgba(255,255,255,0.06),transparent_36%),linear-gradient(180deg,#11141b,#05070b)] [perspective:1600px] ${is3dMode ? "overflow-visible" : ""}`}>
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(transparent_96%,rgba(255,255,255,0.03)_100%),linear-gradient(90deg,transparent_96%,rgba(255,255,255,0.03)_100%)] bg-[size:28px_28px] opacity-35" />
-            <div className={`absolute inset-0 transition-transform duration-500 ${is3dMode ? "scale-[0.96] rotate-x-[58deg] rotate-z-[-22deg] translate-y-[-2%]" : ""}`}>
-            <svg
-              viewBox={
-                model.layout === "coordinate-map"
-                  ? "0 0 1000 700"
-                  : `0 0 ${model.circuit?.viewBox.width ?? 1000} ${model.circuit?.viewBox.height ?? 700}`
-              }
-              className="absolute inset-0 h-full w-full"
-              role="img"
-              aria-label={`${model.title} track map`}
+          <div
+            className={`relative aspect-[16/10] border border-[var(--border)] bg-[#090b10] [perspective:1600px] ${is3dMode ? "overflow-visible" : ""}`}
+          >
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(transparent_96%,var(--grid-line)_100%),linear-gradient(90deg,transparent_96%,var(--grid-line)_100%)] bg-[size:28px_28px] opacity-25" />
+            <div
+              className={`absolute inset-0 transition-transform duration-500 ${is3dMode ? "scale-[0.96] rotate-x-[58deg] rotate-z-[-22deg] translate-y-[-2%]" : ""}`}
             >
-              {model.layout === "coordinate-map" ? (
-                <>
+              <svg
+                viewBox={
+                  model.layout === "coordinate-map"
+                    ? "0 0 1000 700"
+                    : `0 0 ${model.circuit?.viewBox.width ?? 1000} ${model.circuit?.viewBox.height ?? 700}`
+                }
+                className="absolute inset-0 h-full w-full"
+                role="img"
+                aria-label={`${model.title} track map`}
+              >
+                {model.layout === "coordinate-map" ? (
+                  <>
                     <path
                       d={coordinatePath}
                       fill="none"
@@ -480,7 +499,7 @@ export function TrackSurface({
                     />
                     {coordinateStartPoint ? (
                       <>
-                      <circle
+                        <circle
                           cx={(coordinateStartPoint.xPercent / 100) * 1000}
                           cy={(coordinateStartPoint.yPercent / 100) * 700}
                           r="10"
@@ -488,7 +507,7 @@ export function TrackSurface({
                           opacity="0.95"
                         />
                         <circle
-                        cx={(coordinateStartPoint.xPercent / 100) * 1000}
+                          cx={(coordinateStartPoint.xPercent / 100) * 1000}
                           cy={(coordinateStartPoint.yPercent / 100) * 700}
                           r="22"
                           fill="none"
@@ -496,16 +515,39 @@ export function TrackSurface({
                           opacity="1"
                           strokeWidth="4"
                         />
-                        <g transform={`translate(${(coordinateStartPoint.xPercent / 100) * 1000} ${(coordinateStartPoint.yPercent / 100) * 700})`}>
-                          <rect x="-16" y="-34" width="32" height="10" rx="4" fill="rgba(255,255,255,0.94)" />
-                          <rect x="-16" y="-34" width="16" height="10" rx="4" fill="rgba(15,15,18,0.92)" />
-                          <rect x="0" y="-34" width="16" height="10" rx="4" fill="rgba(255,255,255,0.94)" />
+                        <g
+                          transform={`translate(${(coordinateStartPoint.xPercent / 100) * 1000} ${(coordinateStartPoint.yPercent / 100) * 700})`}
+                        >
+                          <rect
+                            x="-16"
+                            y="-34"
+                            width="32"
+                            height="10"
+                            rx="4"
+                            fill="rgba(255,255,255,0.94)"
+                          />
+                          <rect
+                            x="-16"
+                            y="-34"
+                            width="16"
+                            height="10"
+                            rx="4"
+                            fill="rgba(15,15,18,0.92)"
+                          />
+                          <rect
+                            x="0"
+                            y="-34"
+                            width="16"
+                            height="10"
+                            rx="4"
+                            fill="rgba(255,255,255,0.94)"
+                          />
                         </g>
                       </>
                     ) : null}
                   </>
-              ) : (
-                <>
+                ) : (
+                  <>
                     <path
                       d={model.circuit?.path ?? ""}
                       fill="none"
@@ -515,8 +557,8 @@ export function TrackSurface({
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
-                  <path
-                    ref={pathRef}
+                    <path
+                      ref={pathRef}
                       d={model.circuit?.path ?? ""}
                       fill="none"
                       stroke="white"
@@ -535,65 +577,65 @@ export function TrackSurface({
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
-                  <line
-                    x1={model.circuit?.startFinish.x1 ?? 0}
-                    y1={model.circuit?.startFinish.y1 ?? 0}
-                    x2={model.circuit?.startFinish.x2 ?? 0}
-                    y2={model.circuit?.startFinish.y2 ?? 0}
-                    stroke="white"
-                    strokeWidth="6"
-                    strokeDasharray="10 8"
-                    strokeLinecap="round"
-                  />
-                </>
-              )}
-              {renderMarkerLayout.map((marker) => {
-                const markerPosition = getMarkerSvgPosition(
-                  marker,
-                  svgDimensions,
-                );
-                const radius = marker.position <= 3 ? 7 : 5;
+                    <line
+                      x1={model.circuit?.startFinish.x1 ?? 0}
+                      y1={model.circuit?.startFinish.y1 ?? 0}
+                      x2={model.circuit?.startFinish.x2 ?? 0}
+                      y2={model.circuit?.startFinish.y2 ?? 0}
+                      stroke="white"
+                      strokeWidth="6"
+                      strokeDasharray="10 8"
+                      strokeLinecap="round"
+                    />
+                  </>
+                )}
+                {renderMarkerLayout.map((marker) => {
+                  const markerPosition = getMarkerSvgPosition(
+                    marker,
+                    svgDimensions,
+                  );
+                  const radius = marker.position <= 3 ? 7 : 5;
 
-                return (
-                  <g
-                    key={`track-marker-${marker.racingNumber}`}
-                    transform={`translate(${markerPosition.x} ${markerPosition.y})`}
-                  >
-                    <circle
-                      cx="0"
-                      cy="0"
-                      r={radius + 7}
-                      fill="rgba(15, 15, 18, 0.5)"
-                    />
-                    <circle
-                      cx="0"
-                      cy="0"
-                      r={radius + 1}
-                      fill={`#${marker.teamColor}`}
-                      stroke="rgba(255,255,255,0.92)"
-                      strokeWidth="2.2"
-                    />
-                    <text
-                      x="0"
-                      y={radius <= 6 ? -12 : -14}
-                      textAnchor="middle"
-                      fill="white"
-                      fontSize="10"
-                      fontWeight="700"
+                  return (
+                    <g
+                      key={`track-marker-${marker.racingNumber}`}
+                      transform={`translate(${markerPosition.x} ${markerPosition.y})`}
                     >
-                      {marker.shortCode ?? marker.racingNumber}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
+                      <circle
+                        cx="0"
+                        cy="0"
+                        r={radius + 7}
+                        fill="rgba(15, 15, 18, 0.5)"
+                      />
+                      <circle
+                        cx="0"
+                        cy="0"
+                        r={radius + 1}
+                        fill={getSoftTeamColor(marker.teamColor)}
+                        stroke="rgba(255,255,255,0.92)"
+                        strokeWidth="2.2"
+                      />
+                      <text
+                        x="0"
+                        y={radius <= 6 ? -12 : -14}
+                        textAnchor="middle"
+                        fill="white"
+                        fontSize="10"
+                        fontWeight="700"
+                      >
+                        {marker.shortCode ?? marker.racingNumber}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
             </div>
             {is3dMode ? (
-              <div className="pointer-events-none absolute inset-x-[10%] bottom-[-7%] h-[18%] rounded-full bg-[color-mix(in_oklab,var(--foreground),transparent_78%)] blur-3xl" />
+              <div className="pointer-events-none absolute inset-x-[10%] bottom-[-7%] h-[18%] bg-[color-mix(in_oklab,var(--foreground),transparent_85%)] blur-2xl" />
             ) : null}
           </div>
 
-          <p className="mt-3 text-sm text-white/60">
+          <p className="mt-2 text-[11px] text-[var(--muted-foreground)]">
             {model.mode === "position-live"
               ? "Markers are plotted from Tinybird-backed live position frames."
               : model.mode === "historical-position"
@@ -602,7 +644,7 @@ export function TrackSurface({
           </p>
 
           {replayControls ? (
-            <div className="mt-4 space-y-3 rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel)] p-4">
+            <div className="mt-3 space-y-2 border border-[var(--border)] bg-[var(--panel)] p-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <div className="text-xs uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
@@ -613,11 +655,11 @@ export function TrackSurface({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={replayControls.onStepBackward}
-                      disabled={!replayControls.canStepBackward}
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={replayControls.onStepBackward}
+                    disabled={!replayControls.canStepBackward}
                   >
                     <SkipBack className="size-4" />
                   </Button>
@@ -657,13 +699,13 @@ export function TrackSurface({
                     {replayControls.durationLabel}
                   </span>
                 </div>
-                 <input
-                   type="range"
-                   min={0}
-                   max={Math.max(replayControls.rangeMax, 0)}
-                   step={1}
-                   value={replayControls.rangeValue}
-                   onChange={(event) =>
+                <input
+                  type="range"
+                  min={0}
+                  max={Math.max(replayControls.rangeMax, 0)}
+                  step={1}
+                  value={replayControls.rangeValue}
+                  onChange={(event) =>
                     replayControls.onSeek(
                       Number.parseInt(event.target.value, 10),
                     )
@@ -697,19 +739,19 @@ export function TrackSurface({
           ) : null}
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-1">
           {leaderRail.map((marker) => (
             <div
               key={`rail-${marker.racingNumber}`}
-              className="grid grid-cols-[56px_44px_1fr_auto] items-center gap-3 rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel)] px-3 py-3"
+              className="grid grid-cols-[48px_36px_1fr_auto] items-center gap-2 border border-[var(--border)] bg-[var(--panel)] px-2.5 py-2"
             >
               <div
-                className="flex w-12 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
-                style={{ backgroundColor: `#${marker.teamColor}` }}
+                className="flex w-12 shrink-0 items-center justify-center text-[11px] font-semibold text-[var(--primary-foreground)]"
+                style={{ backgroundColor: getSoftTeamColor(marker.teamColor) }}
               >
-                P{marker.position}
+                P<NumberFlow value={marker.position} />
               </div>
-              <div className="relative size-11 overflow-hidden rounded-full border border-[var(--border)] bg-[var(--panel-elevated)]">
+              <div className="relative size-9 overflow-hidden border border-[var(--border)] bg-[var(--panel-elevated)]">
                 {marker.headshotUrl ? (
                   <img
                     src={marker.headshotUrl}
@@ -719,8 +761,13 @@ export function TrackSurface({
                   />
                 ) : (
                   <div
-                    className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase text-white"
-                    style={{ backgroundColor: `#${marker.teamColor}` }}
+                    className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase text-[var(--workspace-inverse)]"
+                    style={{
+                      backgroundColor: getSoftTeamColorRgba(
+                        marker.teamColor,
+                        0.92,
+                      ),
+                    }}
                   >
                     {marker.shortCode}
                   </div>

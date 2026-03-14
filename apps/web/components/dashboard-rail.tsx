@@ -9,6 +9,7 @@ import {
   PlaySquare,
   Waves,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const primaryLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -24,17 +25,17 @@ export function DashboardRail() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden border-r border-[var(--border)] bg-[color-mix(in_oklab,var(--panel),white_8%)]/88 lg:block">
-      <div className="sticky top-0 flex h-screen flex-col gap-6 px-4 py-5 backdrop-blur-xl">
+    <aside className="hidden border-r border-[var(--border)] bg-[var(--panel)] lg:block">
+      <div className="sticky top-0 flex h-screen flex-col gap-4 px-3 py-4">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel)] px-3 py-3 text-sm font-semibold uppercase tracking-[0.18em]"
+          className="inline-flex items-center gap-2 border border-[var(--border-strong)] bg-[var(--background)] px-3 py-2.5 text-[11px] font-medium uppercase tracking-[0.18em]"
         >
-          <Activity className="size-4 text-[var(--primary)]" />
+          <Activity className="size-3.5 text-[var(--primary)]" />
           F1 Hub
         </Link>
 
-        <div className="space-y-2">
+        <div className="space-y-1">
           <div className="px-2 text-[10px] uppercase tracking-[0.22em] text-[var(--muted-foreground)]">
             Workspace
           </div>
@@ -46,30 +47,27 @@ export function DashboardRail() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`flex items-center justify-between rounded-(--radius-md) border px-3 py-3 text-sm transition-colors ${
+                className={`flex items-center justify-between border px-3 py-2.5 text-[11px] uppercase tracking-[0.16em] transition-colors ${
                   active
                     ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]"
-                    : "border-[var(--border)] bg-[var(--panel)] hover:bg-[var(--muted)]"
+                    : "border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] hover:bg-[var(--muted)]"
                 }`}
               >
                 <span className="inline-flex items-center gap-2">
-                  <Icon className="size-4" />
+                  <Icon className="size-3.5" />
                   {link.label}
                 </span>
-                <ChevronRight className="size-4 opacity-70" />
+                <ChevronRight className="size-3.5 opacity-50" />
               </Link>
             );
           })}
         </div>
 
-        <div className="space-y-3 rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel)] p-4 text-sm text-[var(--muted-foreground)]">
-          <div className="text-[10px] uppercase tracking-[0.22em]">
-            Control Room
-          </div>
-          <p>
-            Live race surfaces and historical analysis stay separated so each
-            route can stay fast.
-          </p>
+        <div className="mt-auto flex items-center justify-between border border-[var(--border)] bg-[var(--background)] px-3 py-2">
+          <span className="text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+            Theme
+          </span>
+          <ThemeToggle />
         </div>
       </div>
     </aside>

@@ -8,6 +8,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+import NumberFlow from "@number-flow/react";
+
 import { getLeaderboard } from "@/lib/session-insights";
 import {
   Card,
@@ -51,7 +53,7 @@ export function ReplayTimingTable({ rows, isLoading = false }: { rows: ReplayTim
     () => [
       columnHelper.accessor("position", {
         header: "Pos",
-        cell: (info) => <span className="font-semibold">P{info.getValue()}</span>,
+        cell: (info) => <span className="font-semibold">P<NumberFlow value={info.getValue()} /></span>,
       }),
       columnHelper.display({
         id: "driver",
@@ -62,10 +64,10 @@ export function ReplayTimingTable({ rows, isLoading = false }: { rows: ReplayTim
               <img
                 src={row.original.headshotUrl}
                 alt={row.original.name}
-                className="size-9 rounded-full border border-[var(--border)] object-cover bg-[var(--muted)]"
+                className="size-9  border border-[var(--border)] object-cover bg-[var(--muted)]"
               />
             ) : (
-              <div className="flex size-9 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--muted)] text-xs font-semibold">
+              <div className="flex size-9 items-center justify-center  border border-[var(--border)] bg-[var(--muted)] text-xs font-semibold">
                 {row.original.shortCode ?? row.original.racingNumber}
               </div>
             )}
@@ -81,24 +83,27 @@ export function ReplayTimingTable({ rows, isLoading = false }: { rows: ReplayTim
       columnHelper.accessor("currentCompound", {
         header: "Tyre",
         cell: (info) => (
-          <span className={`rounded-full px-2 py-1 text-[11px] font-semibold uppercase ${compoundTone(info.getValue())}`}>
+          <span className={` px-2 py-1 text-[11px] font-semibold uppercase ${compoundTone(info.getValue())}`}>
             {info.getValue() ?? "-"}
           </span>
         ),
       }),
       columnHelper.accessor("currentStintLaps", {
         header: "Stint",
-        cell: (info) => info.getValue() ?? "-",
+        cell: (info) => info.getValue() != null ? <NumberFlow value={info.getValue()!} /> : "-",
       }),
       columnHelper.accessor("replayLap", {
         header: "Lap",
-        cell: (info) => info.getValue() ?? info.row.original.numberOfLaps ?? "-",
+        cell: (info) => {
+          const val = info.getValue() ?? info.row.original.numberOfLaps;
+          return val != null ? <NumberFlow value={val} /> : "-";
+        },
       }),
       columnHelper.accessor("progress", {
         header: "Track",
         cell: (info) => {
           const value = info.getValue();
-          return value !== undefined ? `${Math.round(value * 100)}%` : "-";
+          return value !== undefined ? <NumberFlow value={Math.round(value * 100)} suffix="%" /> : "-";
         },
       }),
       columnHelper.accessor("lastLapTime", {
@@ -124,7 +129,7 @@ export function ReplayTimingTable({ rows, isLoading = false }: { rows: ReplayTim
   });
 
   return (
-    <Card className="bg-[var(--panel)]/95">
+    <Card>
       <CardHeader>
         <CardTitle>Timing Tower</CardTitle>
         <CardDescription>Replay-aligned timing board that follows the current replay frame.</CardDescription>

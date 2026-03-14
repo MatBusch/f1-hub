@@ -12,6 +12,8 @@ import {
   Zap,
 } from "lucide-react";
 
+import NumberFlow from "@number-flow/react";
+
 import { fetchSessionCatalog } from "@/lib/api";
 import {
   Card,
@@ -153,10 +155,10 @@ export function SessionCatalog() {
                         : "Track pending"}
                     </span>
                     <span className="rounded-full border border-[var(--border)] px-2.5 py-1">
-                      {featuredCompleted.driverCount} drivers
+                      <NumberFlow value={featuredCompleted.driverCount} /> drivers
                     </span>
                     <span className="rounded-full border border-[var(--border)] px-2.5 py-1">
-                      {featuredCompleted.frameCount.toLocaleString()} frames
+                      <NumberFlow value={featuredCompleted.frameCount} /> frames
                     </span>
                   </div>
                   <Button asChild>
@@ -295,7 +297,7 @@ export function SessionCatalog() {
                         {formatDate(session.startsAt)}
                       </span>
                       <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-2 py-1">
-                        {session.frameCount.toLocaleString()} frames
+                        <NumberFlow value={session.frameCount} /> frames
                       </span>
                     </div>
                   </CardHeader>
@@ -403,10 +405,10 @@ export function SessionCatalog() {
                         {formatDate(session.startsAt)}
                       </span>
                       <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-2 py-1">
-                        {session.driverCount} drivers
+                        <NumberFlow value={session.driverCount} /> drivers
                       </span>
                       <span className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-2 py-1">
-                        {session.frameCount.toLocaleString()} frames
+                        <NumberFlow value={session.frameCount} /> frames
                       </span>
                     </div>
                   </CardHeader>

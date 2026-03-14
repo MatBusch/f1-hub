@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Radio } from "lucide-react";
 
+import NumberFlow from "@number-flow/react";
+
 import { fetchSessionCatalog } from "@/lib/api";
 import {
   useLiveSessionController,
@@ -183,7 +185,7 @@ export function LiveDashboard() {
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm text-[var(--muted-foreground)]">
                     <div>{formatDate(session.startsAt)}</div>
-                    <div>{session.frameCount.toLocaleString()} stored frames</div>
+                    <div><NumberFlow value={session.frameCount} /> stored frames</div>
                     <Button asChild variant="outline">
                       <Link href={`/sessions/${session.sessionKey}`}>Open session</Link>
                     </Button>

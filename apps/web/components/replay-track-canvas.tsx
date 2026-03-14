@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getSoftTeamColor, getSoftTeamColorRgba } from "@/lib/utils";
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
@@ -56,7 +57,11 @@ function projectPoint(
   const innerHeight = Math.max(size.height - padding * 2, 1);
   const widthSpan = Math.max(bounds.maxX - bounds.minX, 1);
   const heightSpan = Math.max(bounds.maxY - bounds.minY, 1);
-  const scale = Math.min((innerWidth / widthSpan) * 0.98, (innerHeight / heightSpan) * 0.98) * zoom;
+  const scale =
+    Math.min(
+      (innerWidth / widthSpan) * 0.98,
+      (innerHeight / heightSpan) * 0.98,
+    ) * zoom;
   const offsetX = (size.width - widthSpan * scale) / 2 + panOffset.x;
   const offsetY = (size.height - heightSpan * scale) / 2 + panOffset.y;
 
@@ -130,7 +135,11 @@ export function ReplayTrackCanvas({
     }
 
     const draw = () => {
-      const { model: currentModel, nextModel: upcomingModel, interpolation: progressRaw } = latestRef.current;
+      const {
+        model: currentModel,
+        nextModel: upcomingModel,
+        interpolation: progressRaw,
+      } = latestRef.current;
       const dpr = Math.max(window.devicePixelRatio || 1, 2);
       canvas.width = size.width * dpr;
       canvas.height = size.height * dpr;
@@ -167,7 +176,14 @@ export function ReplayTrackCanvas({
         },
       );
       const points = currentModel.pathPoints.map((point) => ({
-        ...projectPoint(point.xPercent, point.yPercent, pathBounds, size, zoom, panOffset),
+        ...projectPoint(
+          point.xPercent,
+          point.yPercent,
+          pathBounds,
+          size,
+          zoom,
+          panOffset,
+        ),
       }));
 
       ctx.strokeStyle = "rgba(0,0,0,0.92)";
@@ -238,7 +254,10 @@ export function ReplayTrackCanvas({
 
       const progress = clamp(progressRaw, 0, 1);
       const nextMarkerMap = new Map(
-        (upcomingModel?.markers ?? []).map((marker) => [marker.racingNumber, marker]),
+        (upcomingModel?.markers ?? []).map((marker) => [
+          marker.racingNumber,
+          marker,
+        ]),
       );
       const states = driverStatesRef.current;
 
@@ -262,8 +281,16 @@ export function ReplayTrackCanvas({
           existing.targetXPercent = targetXPercent;
           existing.targetYPercent = targetYPercent;
           existing.marker = marker;
-          existing.xPercent = interpolate(existing.xPercent, targetXPercent, 0.28);
-          existing.yPercent = interpolate(existing.yPercent, targetYPercent, 0.28);
+          existing.xPercent = interpolate(
+            existing.xPercent,
+            targetXPercent,
+            0.28,
+          );
+          existing.yPercent = interpolate(
+            existing.yPercent,
+            targetYPercent,
+            0.28,
+          );
         } else {
           states.set(marker.racingNumber, {
             xPercent: targetXPercent,
@@ -276,13 +303,24 @@ export function ReplayTrackCanvas({
       }
 
       for (const [racingNumber, state] of [...states.entries()]) {
-        if (!currentModel.markers.some((marker) => marker.racingNumber === racingNumber)) {
+        if (
+          !currentModel.markers.some(
+            (marker) => marker.racingNumber === racingNumber,
+          )
+        ) {
           states.delete(racingNumber);
         }
       }
 
       for (const state of states.values()) {
-        const { x, y } = projectPoint(state.xPercent, state.yPercent, pathBounds, size, zoom, panOffset);
+        const { x, y } = projectPoint(
+          state.xPercent,
+          state.yPercent,
+          pathBounds,
+          size,
+          zoom,
+          panOffset,
+        );
         const radius = 7;
         const isSelected = state.marker.racingNumber === selectedDriver;
 
@@ -291,7 +329,9 @@ export function ReplayTrackCanvas({
         ctx.arc(x, y, isSelected ? radius + 10 : radius + 6, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = `#${state.marker.teamColor}`;
+        const teamColor = getSoftTeamColor(state.marker.teamColor);
+
+        ctx.fillStyle = teamColor;
         ctx.beginPath();
         ctx.arc(x, y, isSelected ? radius + 2 : radius, 0, Math.PI * 2);
         ctx.fill();
@@ -302,7 +342,7 @@ export function ReplayTrackCanvas({
         ctx.arc(x, y, isSelected ? radius + 2 : radius, 0, Math.PI * 2);
         ctx.stroke();
         if (isSelected) {
-          ctx.strokeStyle = `#${state.marker.teamColor}`;
+          ctx.strokeStyle = getSoftTeamColorRgba(state.marker.teamColor, 0.98);
           ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.arc(x, y, radius + 8, 0, Math.PI * 2);
@@ -312,7 +352,11 @@ export function ReplayTrackCanvas({
         ctx.font = "700 10px ui-sans-serif";
         ctx.textAlign = "center";
         ctx.fillStyle = "#ffffff";
-        ctx.fillText(state.marker.shortCode ?? state.marker.racingNumber, x, y - 14);
+        ctx.fillText(
+          state.marker.shortCode ?? state.marker.racingNumber,
+          x,
+          y - 14,
+        );
       }
 
       frameRef.current = window.requestAnimationFrame(draw);
@@ -320,7 +364,14 @@ export function ReplayTrackCanvas({
 
     frameRef.current = window.requestAnimationFrame(draw);
     return () => window.cancelAnimationFrame(frameRef.current);
-  }, [model?.pathPoints?.length, panOffset, selectedDriver, size.height, size.width, zoom]);
+  }, [
+    model?.pathPoints?.length,
+    panOffset,
+    selectedDriver,
+    size.height,
+    size.width,
+    zoom,
+  ]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -367,20 +418,33 @@ export function ReplayTrackCanvas({
         minY: Math.min(summary.minY, point.yPercent),
         maxY: Math.max(summary.maxY, point.yPercent),
       }),
-      { minX: Number.POSITIVE_INFINITY, maxX: Number.NEGATIVE_INFINITY, minY: Number.POSITIVE_INFINITY, maxY: Number.NEGATIVE_INFINITY },
+      {
+        minX: Number.POSITIVE_INFINITY,
+        maxX: Number.NEGATIVE_INFINITY,
+        minY: Number.POSITIVE_INFINITY,
+        maxY: Number.NEGATIVE_INFINITY,
+      },
     );
     let winner: { id: string; dist: number } | null = null;
     for (const [racingNumber, state] of driverStatesRef.current.entries()) {
-      const point = projectPoint(state.xPercent, state.yPercent, pathBounds, size, zoom, panOffset);
+      const point = projectPoint(
+        state.xPercent,
+        state.yPercent,
+        pathBounds,
+        size,
+        zoom,
+        panOffset,
+      );
       const dist = Math.hypot(clickX - point.x, clickY - point.y);
-      if (dist < 20 && (!winner || dist < winner.dist)) winner = { id: racingNumber, dist };
+      if (dist < 20 && (!winner || dist < winner.dist))
+        winner = { id: racingNumber, dist };
     }
     onSelectDriver(winner ? winner.id : null);
   };
 
   if (!model?.pathPoints?.length) {
     const fallbackContent = (
-      <Card className="bg-[var(--panel)]/95">
+      <Card>
         <CardHeader>
           <CardTitle>Track surface unavailable</CardTitle>
           <CardDescription>
@@ -391,7 +455,7 @@ export function ReplayTrackCanvas({
         </CardHeader>
         {isLoading ? (
           <CardContent>
-            <Skeleton className="aspect-[16/10] min-h-[28rem] w-full rounded-(--radius-lg)" />
+            <Skeleton className="aspect-[16/10] min-h-[28rem] w-full" />
           </CardContent>
         ) : null}
       </Card>
@@ -402,14 +466,16 @@ export function ReplayTrackCanvas({
     }
 
     return (
-      <div className="rounded-(--radius-lg) border border-[var(--border)] bg-[#0a0a0a] p-6 text-white">
-        <div className="text-lg font-semibold">Track surface unavailable</div>
-        <div className="mt-2 text-sm text-white/60">
+      <div className="border border-[var(--border)] bg-[var(--panel)] p-4 text-[var(--foreground)]">
+        <div className="text-[12px] font-semibold uppercase tracking-[0.06em]">Track surface unavailable</div>
+        <div className="mt-1 text-[11px] text-[var(--muted-foreground)]">
           {isLoading
             ? "Loading replay track data..."
             : "No circuit or timing snapshot is available for this session yet."}
         </div>
-        {isLoading ? <Skeleton className="mt-4 aspect-[16/10] min-h-[28rem] w-full rounded-(--radius-lg)" /> : null}
+        {isLoading ? (
+          <Skeleton className="mt-3 aspect-[16/10] min-h-[28rem] w-full" />
+        ) : null}
       </div>
     );
   }
@@ -419,7 +485,7 @@ export function ReplayTrackCanvas({
 
   if (!chrome) {
     return (
-      <div className="overflow-hidden rounded-(--radius-lg) border border-white/10 bg-[#0a0a0a]">
+      <div className="overflow-hidden border border-[var(--border)] bg-[var(--panel)]">
         <div
           ref={containerRef}
           className="relative aspect-[16/10] min-h-[28rem] overflow-hidden bg-[#090b10]"
@@ -431,7 +497,15 @@ export function ReplayTrackCanvas({
                 : "scale-100 [transform:none]"
             }`}
           >
-            <canvas ref={canvasRef} className={`h-full w-full ${interactive ? "cursor-crosshair" : ""}`} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onClick={handleClick} />
+            <canvas
+              ref={canvasRef}
+              className={`h-full w-full ${interactive ? "cursor-crosshair" : ""}`}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onClick={handleClick}
+            />
           </div>
         </div>
       </div>
@@ -439,14 +513,14 @@ export function ReplayTrackCanvas({
   }
 
   return (
-    <Card className="overflow-hidden bg-[linear-gradient(180deg,color-mix(in_oklab,var(--panel),white_4%),var(--panel-elevated))]">
+    <Card className="overflow-hidden">
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <div>
             <CardTitle>{frameTitle}</CardTitle>
             <CardDescription>{frameSubtitle}</CardDescription>
           </div>
-          <span className="rounded-full bg-[var(--muted)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+          <span className="border border-[var(--border)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
             {badgeLabel}
           </span>
         </div>
@@ -454,7 +528,7 @@ export function ReplayTrackCanvas({
       <CardContent>
         <div
           ref={containerRef}
-          className="relative aspect-[16/10] min-h-[28rem] overflow-hidden rounded-(--radius-lg) border border-[var(--border)] bg-[#090b10]"
+          className="relative aspect-[16/10] min-h-[28rem] overflow-hidden border border-[var(--border)] bg-[#090b10]"
         >
           <div
             className={`h-full w-full origin-center transition-transform duration-300 ${
@@ -463,7 +537,15 @@ export function ReplayTrackCanvas({
                 : "scale-100 [transform:none]"
             }`}
           >
-            <canvas ref={canvasRef} className={`h-full w-full ${interactive ? "cursor-crosshair" : ""}`} onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp} onClick={handleClick} />
+            <canvas
+              ref={canvasRef}
+              className={`h-full w-full ${interactive ? "cursor-crosshair" : ""}`}
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onClick={handleClick}
+            />
           </div>
         </div>
       </CardContent>

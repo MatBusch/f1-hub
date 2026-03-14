@@ -5,20 +5,24 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-(--radius-sm) text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)] [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap border text-[11px] font-medium uppercase tracking-[0.14em] transition-colors disabled:pointer-events-none disabled:opacity-40 outline-none focus-visible:ring-1 focus-visible:ring-[var(--ring)] [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-3.5 shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[color-mix(in_oklab,var(--primary),black_10%)]",
-        secondary: "bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[color-mix(in_oklab,var(--secondary),black_8%)]",
-        outline: "border border-[var(--border)] bg-[var(--panel)] text-[var(--foreground)] hover:bg-[var(--muted)]",
-        ghost: "text-[var(--foreground)] hover:bg-[var(--muted)]",
+        default:
+          "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[color-mix(in_oklab,var(--primary),white_12%)]",
+        secondary:
+          "border-[var(--border-strong)] bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:bg-[var(--muted)]",
+        outline:
+          "border-[var(--border-strong)] bg-transparent text-[var(--foreground)] hover:bg-[var(--muted)]",
+        ghost:
+          "border-transparent text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]",
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 px-3",
-        lg: "h-11 px-6",
-        icon: "size-10",
+        default: "h-8 px-3 py-1.5",
+        sm: "h-7 px-2.5 text-[10px]",
+        lg: "h-9 px-4",
+        icon: "size-8",
       },
     },
     defaultVariants: {
@@ -29,7 +33,8 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
