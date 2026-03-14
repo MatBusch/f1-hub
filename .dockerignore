@@ -1,0 +1,8 @@
+node_modules
+.next
+apps/*/node_modules
+apps/*/dist
+packages/*/node_modules
+.tb-generated-*
+.git
+.env.local

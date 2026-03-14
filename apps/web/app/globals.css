@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+:root {
+    --font-sans:
+        "Avenir Next",
+        Avenir,
+        "Segoe UI",
+        sans-serif;
+    --font-display:
+        "Avenir Next Condensed",
+        "Arial Narrow",
+        "Avenir Next",
+        Avenir,
+        sans-serif;
+    --font-mono:
+        "IBM Plex Mono",
+        "SFMono-Regular",
+        "SF Mono",
+        Consolas,
+        "Liberation Mono",
+        monospace;
+    --background: oklch(0.985 0.004 95);
+    --background-elevated: oklch(0.965 0.008 95);
+    --foreground: oklch(0.18 0.01 95);
+    --panel: oklch(0.995 0.002 95 / 82%);
+    --panel-elevated: oklch(0.97 0.008 95);
+    --primary: oklch(0.61 0.18 30);
+    --primary-foreground: oklch(0.985 0.01 30);
+    --secondary: oklch(0.9 0.015 95);
+    --secondary-foreground: oklch(0.23 0.012 95);
+    --accent: oklch(0.75 0.16 72);
+    --accent-foreground: oklch(0.16 0.014 72);
+    --accent-soft: oklch(0.86 0.08 70 / 35%);
+    --muted: oklch(0.94 0.008 95);
+    --muted-foreground: oklch(0.48 0.015 95);
+    --border: oklch(0.87 0.01 95);
+    --input: oklch(0.9 0.01 95);
+    --ring: oklch(0.61 0.18 30);
+    --success: oklch(0.71 0.16 148);
+    --warning: oklch(0.8 0.16 78);
+    --destructive: oklch(0.61 0.22 26);
+    --info: oklch(0.65 0.13 235);
+    --chart-1: oklch(0.63 0.2 27);
+    --chart-2: oklch(0.69 0.17 152);
+    --chart-3: oklch(0.71 0.15 74);
+    --chart-4: oklch(0.62 0.12 234);
+    --chart-5: oklch(0.72 0.14 320);
+    --radius: 1.25rem;
+    --radius-sm: calc(var(--radius) - 0.5rem);
+    --radius-md: calc(var(--radius) - 0.25rem);
+    --radius-lg: var(--radius);
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-border: var(--border);
+    --color-ring: var(--ring);
+    --radius-sm: var(--radius-sm);
+    --radius-md: var(--radius-md);
+    --radius-lg: var(--radius-lg);
+    --font-sans: var(--font-sans);
+    --font-display: var(--font-display);
+    --font-mono: var(--font-mono);
+}
+
+* {
+    border-color: var(--border);
+}
+
+html {
+    color-scheme: light;
+}
+
+body {
+    min-height: 100vh;
+    background:
+        linear-gradient(
+            180deg,
+            color-mix(in oklab, var(--background), white 8%),
+            var(--background)
+        ),
+        linear-gradient(
+            90deg,
+            color-mix(in oklab, var(--border), transparent 30%) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            color-mix(in oklab, var(--border), transparent 30%) 1px,
+            transparent 1px
+        );
+    background-size:
+        auto,
+        28px 28px,
+        28px 28px;
+    background-position:
+        0 0,
+        center center,
+        center center;
+    color: var(--foreground);
+    font-family: var(--font-sans), sans-serif;
+}
+
+h1,
+h2,
+h3,
+[data-slot="card-title"] {
+    font-family: var(--font-display), sans-serif;
+}
+
+::selection {
+    background: color-mix(in oklab, var(--primary), white 22%);
+    color: var(--primary-foreground);
+}

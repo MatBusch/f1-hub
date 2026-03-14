@@ -1,0 +1,37 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "transit": {
+      "dependsOn": ["^transit"]
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "env": [
+        "TINYBIRD_TOKEN",
+        "TINYBIRD_URL",
+        "COLLECTOR_DRY_RUN",
+        "COLLECTOR_FLUSH_INTERVAL_MS"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", "build/**"]
+    },
+    "lint": {
+      "outputs": []
+    },
+    "typecheck": {
+      "dependsOn": ["transit"],
+      "outputs": []
+    },
+    "dev": {
+      "env": [
+        "TINYBIRD_TOKEN",
+        "TINYBIRD_URL",
+        "COLLECTOR_DRY_RUN",
+        "COLLECTOR_FLUSH_INTERVAL_MS"
+      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

@@ -1,0 +1,12 @@
+node_modules
+.next
+.turbo
+pnpm-lock.yaml
+.env
+.env.*
+dist
+coverage
+*.tsbuildinfo
+.tinyb
+.tb-generated-*
+.tmp/

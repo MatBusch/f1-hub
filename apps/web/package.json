@@ -1,0 +1,43 @@
+{
+  "name": "@f1-hub/web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3001",
+    "dev:webpack": "next dev --webpack --port 3001",
+    "build": "next build --webpack",
+    "build:turbopack": "next build",
+    "start": "next start --port 3001",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@f1-hub/contracts": "workspace:*",
+    "@f1-hub/data": "workspace:*",
+    "@radix-ui/react-slot": "1.2.4",
+    "@tanstack/react-query": "5.90.21",
+    "@tanstack/react-table": "8.21.3",
+    "@types/three": "^0.183.1",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "lucide-react": "0.577.0",
+    "next": "16.1.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwind-merge": "3.5.0",
+    "three": "^0.183.2",
+    "zustand": "5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "3.3.1",
+    "@tailwindcss/postcss": "4.2.1",
+    "@types/node": "24.7.2",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "4.2.1",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "f1-hub",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.30.1",
+  "scripts": {
+    "dev": "turbo run dev --filter=@f1-hub/web --filter=@f1-hub/collector",
+    "dev:web": "turbo run dev --filter=@f1-hub/web",
+    "web:dev": "docker compose -f compose.collector.yml down 2>/dev/null; fuser -k 9464/tcp 9465/tcp 2>/dev/null; sleep 1; pnpm --filter @f1-hub/web dev:webpack",
+    "dev:collector": "turbo run dev --filter=@f1-hub/collector",
+    "seed:sessions": "pnpm --filter @f1-hub/collector seed:sessions",
+    "bootstrap:australia:local": "pnpm --filter @f1-hub/collector bootstrap:australia:local",
+    "backfill:track": "pnpm --filter @f1-hub/collector backfill:track",
+    "backfill:replay": "pnpm --filter @f1-hub/collector backfill:replay",
+    "backfill:replay:openf1": "pnpm --filter @f1-hub/collector backfill:replay:openf1",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "tb:local:start": "tb local start -d",
+    "tb:local:status": "tb local status",
+    "tb:build:local": "pnpm exec tinybird build --local",
+    "tb:build": "tb build",
+    "tb:dev": "tb dev",
+    "tb:deploy": "tb --cloud deploy"
+  },
+  "dependencies": {
+    "@tinybirdco/sdk": "^0.0.59"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.6"
+  }
+}

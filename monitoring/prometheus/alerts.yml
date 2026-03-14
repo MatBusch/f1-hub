@@ -1,0 +1,103 @@
+groups:
+  - name: collector-alerts
+    interval: 15s
+    rules:
+      - alert: CollectorSignalRDisconnected
+        expr: f1hub_collector_ingest_signalr_connected == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: collector-ingest
+        annotations:
+          summary: Collector ingest websocket is disconnected
+          description: The ingest process has reported SignalR disconnected for more than 1 minute.
+
+      - alert: CollectorReconnectLoop
+        expr: increase(f1hub_collector_ingest_signalr_reconnects_total[10m]) >= 5
+        for: 0m
+        labels:
+          severity: warning
+          service: collector-ingest
+        annotations:
+          summary: Collector ingest is reconnecting frequently
+          description: The ingest process reconnected at least 5 times over the last 10 minutes.
+
+      - alert: CollectorRedisPublishFailures
+        expr: increase(f1hub_collector_ingest_redis_publish_failures_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: collector-ingest
+        annotations:
+          summary: Collector ingest had Redis publish failures
+          description: Redis publish failures were recorded during the last 5 minutes.
+
+      - alert: CollectorWriterFailures
+        expr: increase(f1hub_collector_writer_stream_failures_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: collector-writer
+        annotations:
+          summary: Collector writer failed to process messages
+          description: One or more stream message processing failures happened during the last 5 minutes.
+
+      - alert: CollectorWriterDLQGrowth
+        expr: increase(f1hub_collector_writer_stream_dlq_total[15m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          service: collector-writer
+        annotations:
+          summary: Collector writer moved messages to the DLQ
+          description: At least one collector message hit the dead-letter queue in the last 15 minutes.
+
+      - alert: CollectorWriterHighLagP95
+        expr: histogram_quantile(0.95, sum by (le) (rate(f1hub_collector_writer_end_to_end_lag_seconds_bucket[5m]))) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: collector-writer
+        annotations:
+          summary: Collector writer lag is high
+          description: The p95 end-to-end collector lag has stayed above 10 seconds for 5 minutes.
+
+      - alert: CollectorTinybirdSlowWritesP95
+        expr: histogram_quantile(0.95, sum by (le) (rate(f1hub_collector_writer_tinybird_append_duration_seconds_bucket[5m]))) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: collector-writer
+        annotations:
+          summary: Tinybird writes are slow
+          description: The p95 Tinybird append latency has stayed above 1 second for 5 minutes.
+
+      - alert: RedisExporterDown
+        expr: up{job="redis-exporter"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          service: redis-exporter
+        annotations:
+          summary: Redis exporter is down
+          description: Prometheus cannot scrape the Redis exporter.
+
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_total_system_memory_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: Redis memory usage is high
+          description: Redis is using more than 80% of available system memory.
+
+      - alert: RedisRejectedConnections
+        expr: increase(redis_rejected_connections_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: Redis rejected client connections
+          description: Redis has rejected at least one connection in the last 5 minutes.
