@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { LiveEnvelope } from "@f1-hub/contracts";
-import { ArrowRight, Mic, Radio } from "lucide-react";
+import { ArrowRight, Mic } from "lucide-react";
 
 import { fetchSessionCatalog } from "@/lib/api";
 import {
@@ -61,7 +61,10 @@ function asString(value: unknown) {
   return typeof value === "string" && value.length > 0 ? value : null;
 }
 
-function decodeTeamRadioCard(payload: unknown, fallbackTimestamp: string): DecodedRadioCard {
+function decodeTeamRadioCard(
+  payload: unknown,
+  fallbackTimestamp: string,
+): DecodedRadioCard {
   const record = asRecord(payload);
   const captures = Array.isArray(record?.Captures)
     ? record.Captures.map((entry) => asRecord(entry)).filter(Boolean)
@@ -87,9 +90,7 @@ function decodeTeamRadioCard(payload: unknown, fallbackTimestamp: string): Decod
     asString(firstCapture?.RecordingUrl) ??
     "No decoded media URL yet";
   const emittedAt =
-    asString(record?.Utc) ??
-    asString(firstCapture?.Utc) ??
-    fallbackTimestamp;
+    asString(record?.Utc) ?? asString(firstCapture?.Utc) ?? fallbackTimestamp;
 
   return {
     title: `Driver ${racingNumber}`,
@@ -122,7 +123,9 @@ function decodeEnvelopeCard(envelope: LiveEnvelope): DecodedRadioCard {
 }
 
 export function CommsBoard() {
-  const [selectedSessionKey, setSelectedSessionKey] = useState<number | null>(null);
+  const [selectedSessionKey, setSelectedSessionKey] = useState<number | null>(
+    null,
+  );
 
   const liveSessionsQuery = useQuery({
     queryKey: ["sessions", "comms-live-catalog"],
@@ -140,7 +143,10 @@ export function CommsBoard() {
     }
 
     setSelectedSessionKey((current) => {
-      if (current && liveSessions.some((session) => session.sessionKey === current)) {
+      if (
+        current &&
+        liveSessions.some((session) => session.sessionKey === current)
+      ) {
         return current;
       }
 
@@ -149,7 +155,8 @@ export function CommsBoard() {
   }, [liveSessions]);
 
   const activeSession = useMemo(
-    () => liveSessions.find((session) => session.sessionKey === selectedSessionKey),
+    () =>
+      liveSessions.find((session) => session.sessionKey === selectedSessionKey),
     [liveSessions, selectedSessionKey],
   );
   const activeSessionKey = activeSession?.sessionKey;
@@ -162,25 +169,36 @@ export function CommsBoard() {
   const liveWindow = useLiveSessionStore((state) => state.liveWindow);
   const raceControl = useLiveSessionStore((state) => state.raceControl);
 
-  const sessionState = useMemo(() => getSessionState(boot ?? undefined), [boot]);
+  const sessionState = useMemo(
+    () => getSessionState(boot ?? undefined),
+    [boot],
+  );
   const commsSignals = useMemo(
     () =>
       [...liveWindow]
-        .filter((envelope) =>
-          envelope.topic === "teamRadio" ||
-          envelope.topic === "raceControl" ||
-          envelope.topic === "session",
+        .filter(
+          (envelope) =>
+            envelope.topic === "teamRadio" ||
+            envelope.topic === "raceControl" ||
+            envelope.topic === "session",
         )
         .sort((left, right) => right.sequence - left.sequence)
         .slice(0, 12),
     [liveWindow],
   );
   const decodedComms = useMemo(
-    () => commsSignals.map((signal) => ({ signal, card: decodeEnvelopeCard(signal) })),
+    () =>
+      commsSignals.map((signal) => ({
+        signal,
+        card: decodeEnvelopeCard(signal),
+      })),
     [commsSignals],
   );
 
-  if (liveSessionsQuery.isLoading || (activeSessionKey !== undefined && liveStatus === "loading")) {
+  if (
+    liveSessionsQuery.isLoading ||
+    (activeSessionKey !== undefined && liveStatus === "loading")
+  ) {
     return (
       <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_28%),linear-gradient(180deg,var(--background),var(--background-elevated))]">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 md:px-8 md:py-10">
@@ -201,7 +219,9 @@ export function CommsBoard() {
           <Card>
             <CardHeader>
               <CardTitle>No live comms board available</CardTitle>
-              <CardDescription>This route wakes up during active sessions only.</CardDescription>
+              <CardDescription>
+                This route wakes up during active sessions only.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild>
@@ -231,7 +251,10 @@ export function CommsBoard() {
               activeSessionKey={activeSessionKey}
               onSelect={setSelectedSessionKey}
             />
-            <PanelShell title="Comms Context" description="Session and control-room state around the communication feed.">
+            <PanelShell
+              title="Comms Context"
+              description="Session and control-room state around the communication feed."
+            >
               <div className="grid gap-3">
                 <MetricPanel
                   label="Clock"
@@ -240,7 +263,11 @@ export function CommsBoard() {
                 />
                 <MetricPanel
                   label="Track"
-                  value={sessionState?.trackMessage ?? sessionState?.trackStatus ?? "Unknown"}
+                  value={
+                    sessionState?.trackMessage ??
+                    sessionState?.trackStatus ??
+                    "Unknown"
+                  }
                   hint="Current control condition"
                 />
                 <MetricPanel
@@ -263,8 +290,9 @@ export function CommsBoard() {
                   {activeSession?.meetingName ?? "Comms Board"}
                 </CardTitle>
                 <CardDescription className="max-w-2xl text-base leading-7 text-[var(--muted-foreground)]">
-                  {activeSession?.sessionName ?? "Current session"} with race control,
-                  radio-adjacent signals, and session updates grouped into a single surface.
+                  {activeSession?.sessionName ?? "Current session"} with race
+                  control, radio-adjacent signals, and session updates grouped
+                  into a single surface.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -274,10 +302,15 @@ export function CommsBoard() {
               <SignalFeedPanel envelopes={commsSignals} />
             </section>
 
-            <PanelShell title="Comms Cards" description="Decoded team radio cards with raw fallback for the rest.">
+            <PanelShell
+              title="Comms Cards"
+              description="Decoded team radio cards with raw fallback for the rest."
+            >
               <div className="space-y-3">
                 {decodedComms.length === 0 ? (
-                  <p className="text-sm text-[var(--muted-foreground)]">No comms-focused signals yet.</p>
+                  <p className="text-sm text-[var(--muted-foreground)]">
+                    No comms-focused signals yet.
+                  </p>
                 ) : (
                   decodedComms.map(({ signal, card }) => (
                     <div
@@ -285,13 +318,19 @@ export function CommsBoard() {
                       className="rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel-elevated)] p-3"
                     >
                       <div className="flex items-center justify-between gap-3 text-xs text-[var(--muted-foreground)]">
-                        <span className="uppercase tracking-[0.18em]">{card.subtitle}</span>
+                        <span className="uppercase tracking-[0.18em]">
+                          {card.subtitle}
+                        </span>
                         <span>{formatDate(card.timestamp)}</span>
                       </div>
-                      <div className="mt-2 text-sm font-medium text-[var(--foreground)]">{card.title}</div>
+                      <div className="mt-2 text-sm font-medium text-[var(--foreground)]">
+                        {card.title}
+                      </div>
                       <div className="mt-2 space-y-1 text-xs text-[var(--muted-foreground)]">
                         {card.lines.map((line, index) => (
-                          <div key={index} className="break-all">{line}</div>
+                          <div key={index} className="break-all">
+                            {line}
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -305,12 +344,6 @@ export function CommsBoard() {
                 <Link href="/dashboard">
                   Open dashboard
                   <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href="/timing">
-                  <Radio className="size-4" />
-                  Timing board
                 </Link>
               </Button>
             </div>

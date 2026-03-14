@@ -117,6 +117,37 @@ export type OpenF1Stint = z.infer<typeof openF1StintSchema>;
 export type OpenF1Weather = z.infer<typeof openF1WeatherSchema>;
 export type OpenF1CarData = z.infer<typeof openF1CarDataSchema>;
 
+function driverRecordCompleteness(driver: OpenF1Driver) {
+  return [
+    driver.session_key,
+    driver.broadcast_name,
+    driver.full_name,
+    driver.name_acronym,
+    driver.team_name,
+    driver.team_colour,
+    driver.headshot_url,
+  ].filter((value) => value != null && value !== "").length;
+}
+
+function dedupeDrivers(drivers: OpenF1Driver[]) {
+  const uniqueDrivers = new Map<number, OpenF1Driver>();
+
+  for (const driver of drivers) {
+    const current = uniqueDrivers.get(driver.driver_number);
+
+    if (
+      !current ||
+      driverRecordCompleteness(driver) > driverRecordCompleteness(current)
+    ) {
+      uniqueDrivers.set(driver.driver_number, driver);
+    }
+  }
+
+  return [...uniqueDrivers.values()].sort(
+    (left, right) => left.driver_number - right.driver_number,
+  );
+}
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -183,7 +214,7 @@ export class OpenF1Client {
       { session_key: String(sessionKey) },
       z.array(openF1DriverSchema),
       "drivers",
-    );
+    ).then(dedupeDrivers);
   }
 
   getSessionPositions(sessionKey: number, driverNumber: number) {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, Copy, LayoutDashboard, Map, Mic, PlaySquare, TimerReset, Waves } from "lucide-react";
+import { Activity, LayoutDashboard, PlaySquare, Waves } from "lucide-react";
 
 import { DashboardRail } from "@/components/dashboard-rail";
 
@@ -16,10 +16,6 @@ function isActive(pathname: string, href: string) {
 
 const primaryLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/timing", label: "Timing", icon: TimerReset },
-  { href: "/comms", label: "Comms", icon: Mic },
-  { href: "/map", label: "Map", icon: Map },
-  { href: "/clone", label: "Clone", icon: Copy },
   { href: "/simulate", label: "Replay", icon: PlaySquare },
   { href: "/telemetry", label: "Telemetry", icon: Waves },
 ] as const;

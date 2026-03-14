@@ -5,21 +5,13 @@ import { usePathname } from "next/navigation";
 import {
   Activity,
   ChevronRight,
-  Copy,
   LayoutDashboard,
-  Map,
-  Mic,
   PlaySquare,
-  TimerReset,
   Waves,
 } from "lucide-react";
 
 const primaryLinks = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/timing", label: "Timing", icon: TimerReset },
-  { href: "/comms", label: "Comms", icon: Mic },
-  { href: "/map", label: "Map", icon: Map },
-  { href: "/clone", label: "Clone", icon: Copy },
   { href: "/simulate", label: "Replay", icon: PlaySquare },
   { href: "/telemetry", label: "Telemetry", icon: Waves },
 ] as const;
@@ -71,8 +63,13 @@ export function DashboardRail() {
         </div>
 
         <div className="space-y-3 rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel)] p-4 text-sm text-[var(--muted-foreground)]">
-          <div className="text-[10px] uppercase tracking-[0.22em]">Control Room</div>
-          <p>Live race surfaces and historical analysis stay separated so each route can stay fast.</p>
+          <div className="text-[10px] uppercase tracking-[0.22em]">
+            Control Room
+          </div>
+          <p>
+            Live race surfaces and historical analysis stay separated so each
+            route can stay fast.
+          </p>
         </div>
       </div>
     </aside>

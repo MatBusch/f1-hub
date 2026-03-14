@@ -19,7 +19,14 @@ import {
   X,
 } from "lucide-react";
 
-import type { LiveEnvelope, RaceControlMessage, SessionBoot, SessionCatalogRow, SessionDriver, TrackOutlinePoint } from "@f1-hub/contracts";
+import type {
+  LiveEnvelope,
+  RaceControlMessage,
+  SessionBoot,
+  SessionCatalogRow,
+  SessionDriver,
+  TrackOutlinePoint,
+} from "@f1-hub/contracts";
 
 import {
   fetchRaceControl,
@@ -32,22 +39,33 @@ import {
   fetchTrackOutline,
   fetchTrackReplayFrame,
 } from "@/lib/api";
-import { getLeaderboard, getTrackSurfaceModelFromFrames, type TrackSurfaceModel } from "@/lib/session-insights";
+import {
+  getLeaderboard,
+  getTrackSurfaceModelFromFrames,
+  type TrackSurfaceModel,
+} from "@/lib/session-insights";
 import { cn } from "@/lib/utils";
 import { ReplayTrackCanvas } from "@/components/replay-track-canvas";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home", description: "Welcome to F1Dash" },
-  { href: "/dashboard", label: "Dashboard", description: "Live timing & telemetry" },
+  {
+    href: "/dashboard",
+    label: "Dashboard",
+    description: "Live timing & telemetry",
+  },
   { href: "/replica", label: "Simulate", description: "Replay sessions" },
   { href: "/telemetry", label: "Telemetry", description: "Deep dive analysis" },
   { href: "/schedule", label: "Schedule", description: "Race calendar" },
   { href: "/weather", label: "Weather", description: "Race weekend forecast" },
   { href: "/drivers", label: "Drivers", description: "Driver profiles" },
-  { href: "/constructors", label: "Constructors", description: "Team standings" },
+  {
+    href: "/constructors",
+    label: "Constructors",
+    description: "Team standings",
+  },
   { href: "/standings", label: "Standings", description: "Championships" },
   { href: "/records", label: "Records", description: "All-time records" },
-  { href: "/map", label: "Map", description: "Track overview" },
   { href: "/news", label: "News", description: "Latest updates" },
   { href: "/archive", label: "Archive", description: "Historical data" },
   { href: "/learn", label: "Learn", description: "F1" },
@@ -57,10 +75,26 @@ const NAV_ITEMS = [
 ] as const;
 
 const SOCIALS = [
-  { href: "https://x.com/F1Dash", label: "Follow us on X (Twitter)", short: "X" },
-  { href: "https://www.facebook.com/f1dash", label: "Follow us on Facebook", short: "f" },
-  { href: "https://www.youtube.com/@f1dash_net", label: "Subscribe on YouTube", short: "YT" },
-  { href: "https://www.instagram.com/f1dash_net/", label: "Follow us on Instagram", short: "IG" },
+  {
+    href: "https://x.com/F1Dash",
+    label: "Follow us on X (Twitter)",
+    short: "X",
+  },
+  {
+    href: "https://www.facebook.com/f1dash",
+    label: "Follow us on Facebook",
+    short: "f",
+  },
+  {
+    href: "https://www.youtube.com/@f1dash_net",
+    label: "Subscribe on YouTube",
+    short: "YT",
+  },
+  {
+    href: "https://www.instagram.com/f1dash_net/",
+    label: "Follow us on Instagram",
+    short: "IG",
+  },
 ] as const;
 
 const SPEEDS = [1, 2, 5, 10] as const;
@@ -113,8 +147,18 @@ function classForSessionType(value: string) {
 }
 
 function inferLocation(meetingName: string) {
-  const locations: Array<{ match: string; city: string; country: string; flag: string }> = [
-    { match: "Australia", city: "Melbourne", country: "Australia", flag: "AUS" },
+  const locations: Array<{
+    match: string;
+    city: string;
+    country: string;
+    flag: string;
+  }> = [
+    {
+      match: "Australia",
+      city: "Melbourne",
+      country: "Australia",
+      flag: "AUS",
+    },
     { match: "China", city: "Shanghai", country: "China", flag: "CHN" },
     { match: "Bahrain", city: "Sakhir", country: "Bahrain", flag: "BHR" },
     { match: "Saudi", city: "Jeddah", country: "Saudi Arabia", flag: "KSA" },
@@ -122,28 +166,57 @@ function inferLocation(meetingName: string) {
     { match: "Miami", city: "Miami", country: "United States", flag: "USA" },
     { match: "Monaco", city: "Monte Carlo", country: "Monaco", flag: "MCO" },
     { match: "Canada", city: "Montreal", country: "Canada", flag: "CAN" },
-    { match: "Great Britain", city: "Silverstone", country: "Great Britain", flag: "GBR" },
+    {
+      match: "Great Britain",
+      city: "Silverstone",
+      country: "Great Britain",
+      flag: "GBR",
+    },
     { match: "Belgian", city: "Spa", country: "Belgium", flag: "BEL" },
     { match: "Dutch", city: "Zandvoort", country: "Netherlands", flag: "NLD" },
     { match: "Italian", city: "Monza", country: "Italy", flag: "ITA" },
-    { match: "Singapore", city: "Singapore", country: "Singapore", flag: "SGP" },
-    { match: "United States", city: "Austin", country: "United States", flag: "USA" },
+    {
+      match: "Singapore",
+      city: "Singapore",
+      country: "Singapore",
+      flag: "SGP",
+    },
+    {
+      match: "United States",
+      city: "Austin",
+      country: "United States",
+      flag: "USA",
+    },
     { match: "Mexico", city: "Mexico City", country: "Mexico", flag: "MEX" },
     { match: "Brazil", city: "Sao Paulo", country: "Brazil", flag: "BRA" },
-    { match: "Las Vegas", city: "Las Vegas", country: "United States", flag: "USA" },
+    {
+      match: "Las Vegas",
+      city: "Las Vegas",
+      country: "United States",
+      flag: "USA",
+    },
     { match: "Qatar", city: "Lusail", country: "Qatar", flag: "QAT" },
-    { match: "Abu Dhabi", city: "Yas Marina", country: "United Arab Emirates", flag: "UAE" },
+    {
+      match: "Abu Dhabi",
+      city: "Yas Marina",
+      country: "United Arab Emirates",
+      flag: "UAE",
+    },
   ];
 
-  return locations.find((location) => meetingName.includes(location.match)) ?? {
-    city: "Circuit",
-    country: "Unknown",
-    flag: "F1",
-  };
+  return (
+    locations.find((location) => meetingName.includes(location.match)) ?? {
+      city: "Circuit",
+      country: "Unknown",
+      flag: "F1",
+    }
+  );
 }
 
 function getInitialSession(rows: SessionCatalogRow[]) {
-  return rows.find((row) => row.replayReady && row.hasFrames) ?? rows[0] ?? null;
+  return (
+    rows.find((row) => row.replayReady && row.hasFrames) ?? rows[0] ?? null
+  );
 }
 
 function lowerIncludes(value: string, needle: string) {
@@ -151,7 +224,9 @@ function lowerIncludes(value: string, needle: string) {
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
-  return typeof value === "object" && value !== null ? (value as Record<string, unknown>) : null;
+  return typeof value === "object" && value !== null
+    ? (value as Record<string, unknown>)
+    : null;
 }
 
 function asString(value: unknown) {
@@ -179,18 +254,34 @@ function extractTrackStatus(boot: SessionBoot | undefined) {
   const message = getNestedString(trackStatus, "Message") ?? "GREEN";
 
   if (status === "1") {
-    return { label: "GREEN", tone: "text-[#8cf57f]", pill: "bg-[#16391d] text-[#8cf57f]" };
+    return {
+      label: "GREEN",
+      tone: "text-[#8cf57f]",
+      pill: "bg-[#16391d] text-[#8cf57f]",
+    };
   }
   if (status === "2") {
-    return { label: message || "YELLOW", tone: "text-[#ffd56b]", pill: "bg-[#3a2b0f] text-[#ffd56b]" };
+    return {
+      label: message || "YELLOW",
+      tone: "text-[#ffd56b]",
+      pill: "bg-[#3a2b0f] text-[#ffd56b]",
+    };
   }
   if (status === "4") {
-    return { label: "SAFETY CAR", tone: "text-[#75c8ff]", pill: "bg-[#15263a] text-[#75c8ff]" };
+    return {
+      label: "SAFETY CAR",
+      tone: "text-[#75c8ff]",
+      pill: "bg-[#15263a] text-[#75c8ff]",
+    };
   }
   return { label: message, tone: "text-white", pill: "bg-white/10 text-white" };
 }
 
-function applyReplayBoot(boot: SessionBoot | undefined, events: LiveEnvelope[], endIndex: number) {
+function applyReplayBoot(
+  boot: SessionBoot | undefined,
+  events: LiveEnvelope[],
+  endIndex: number,
+) {
   if (!boot) {
     return undefined;
   }
@@ -258,7 +349,10 @@ function binarySearchEventIndex(events: LiveEnvelope[], timeMs: number) {
   return Math.max(0, high);
 }
 
-function recursiveCollectObjects(value: unknown, output: Record<string, unknown>[]) {
+function recursiveCollectObjects(
+  value: unknown,
+  output: Record<string, unknown>[],
+) {
   if (Array.isArray(value)) {
     for (const item of value) recursiveCollectObjects(item, output);
     return;
@@ -267,11 +361,18 @@ function recursiveCollectObjects(value: unknown, output: Record<string, unknown>
   const record = asRecord(value);
   if (!record) return;
   output.push(record);
-  for (const nested of Object.values(record)) recursiveCollectObjects(nested, output);
+  for (const nested of Object.values(record))
+    recursiveCollectObjects(nested, output);
 }
 
-function extractTeamRadioEntries(events: LiveEnvelope[], endIndex: number, drivers: SessionDriver[]) {
-  const driverMap = new Map(drivers.map((driver) => [String(driver.driverNumber), driver] as const));
+function extractTeamRadioEntries(
+  events: LiveEnvelope[],
+  endIndex: number,
+  drivers: SessionDriver[],
+) {
+  const driverMap = new Map(
+    drivers.map((driver) => [String(driver.driverNumber), driver] as const),
+  );
   const entries = new Map<string, TeamRadioEntry>();
 
   for (let index = 0; index <= endIndex; index += 1) {
@@ -326,7 +427,9 @@ function extractTeamRadioEntries(events: LiveEnvelope[], endIndex: number, drive
     }
   }
 
-  return [...entries.values()].sort((left, right) => right.emittedAt.localeCompare(left.emittedAt));
+  return [...entries.values()].sort((left, right) =>
+    right.emittedAt.localeCompare(left.emittedAt),
+  );
 }
 
 function deriveDriverStandings(leaderboard: ReturnType<typeof getLeaderboard>) {
@@ -335,15 +438,25 @@ function deriveDriverStandings(leaderboard: ReturnType<typeof getLeaderboard>) {
     code: entry.shortCode ?? entry.racingNumber,
     points: RACE_POINTS[index] ?? 0,
     delta: index < 10 ? `+${RACE_POINTS[index] ?? 0}` : "-",
-    movement: entry.position > index + 1 ? "up" : entry.position < index + 1 ? "down" : "same",
+    movement:
+      entry.position > index + 1
+        ? "up"
+        : entry.position < index + 1
+          ? "down"
+          : "same",
   }));
 }
 
-function deriveConstructorStandings(leaderboard: ReturnType<typeof getLeaderboard>) {
+function deriveConstructorStandings(
+  leaderboard: ReturnType<typeof getLeaderboard>,
+) {
   const totals = new Map<string, { team: string; points: number }>();
 
   leaderboard.forEach((entry, index) => {
-    const current = totals.get(entry.teamName) ?? { team: entry.teamName, points: 0 };
+    const current = totals.get(entry.teamName) ?? {
+      team: entry.teamName,
+      points: 0,
+    };
     current.points += RACE_POINTS[index] ?? 0;
     totals.set(entry.teamName, current);
   });
@@ -368,7 +481,9 @@ function buildFallbackTrackModel(
     return null;
   }
 
-  const ordered = [...outlinePoints].sort((left, right) => left.pointIndex - right.pointIndex);
+  const ordered = [...outlinePoints].sort(
+    (left, right) => left.pointIndex - right.pointIndex,
+  );
   const bounds = ordered.reduce(
     (summary, point) => ({
       minX: Math.min(summary.minX, point.x),
@@ -376,18 +491,32 @@ function buildFallbackTrackModel(
       minY: Math.min(summary.minY, point.y),
       maxY: Math.max(summary.maxY, point.y),
     }),
-    { minX: Number.POSITIVE_INFINITY, maxX: Number.NEGATIVE_INFINITY, minY: Number.POSITIVE_INFINITY, maxY: Number.NEGATIVE_INFINITY },
+    {
+      minX: Number.POSITIVE_INFINITY,
+      maxX: Number.NEGATIVE_INFINITY,
+      minY: Number.POSITIVE_INFINITY,
+      maxY: Number.NEGATIVE_INFINITY,
+    },
   );
 
   const width = Math.max(bounds.maxX - bounds.minX, 1);
   const height = Math.max(bounds.maxY - bounds.minY, 1);
   const pathPoints = ordered.map((point) => ({
-    xPercent: Math.max(4, Math.min(96, ((point.x - bounds.minX) / width) * 92 + 4)),
-    yPercent: Math.max(4, Math.min(96, (1 - (point.y - bounds.minY) / height) * 92 + 4)),
+    xPercent: Math.max(
+      4,
+      Math.min(96, ((point.x - bounds.minX) / width) * 92 + 4),
+    ),
+    yPercent: Math.max(
+      4,
+      Math.min(96, (1 - (point.y - bounds.minY) / height) * 92 + 4),
+    ),
   }));
 
   const markers = leaderboard.map((entry, index) => {
-    const sampleIndex = Math.min(pathPoints.length - 1, Math.floor((index / Math.max(leaderboard.length, 1)) * pathPoints.length));
+    const sampleIndex = Math.min(
+      pathPoints.length - 1,
+      Math.floor((index / Math.max(leaderboard.length, 1)) * pathPoints.length),
+    );
     const sample = pathPoints[sampleIndex] ?? pathPoints[0]!;
 
     return {
@@ -419,7 +548,9 @@ function buildFallbackTrackModel(
   };
 }
 
-function latestTrackFramesPerDriver<T extends { driverNumber: number; emittedAt: string }>(frames: T[]) {
+function latestTrackFramesPerDriver<
+  T extends { driverNumber: number; emittedAt: string },
+>(frames: T[]) {
   const latest = new Map<number, T>();
 
   for (const frame of frames) {
@@ -435,7 +566,9 @@ function latestTrackFramesPerDriver<T extends { driverNumber: number; emittedAt:
 function FlagChip({ flag, country }: { flag: string; country: string }) {
   return (
     <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold tracking-[0.18em] text-white/75 uppercase">
-      <span className="rounded-md bg-white/10 px-2 py-1 text-[10px] text-white">{flag}</span>
+      <span className="rounded-md bg-white/10 px-2 py-1 text-[10px] text-white">
+        {flag}
+      </span>
       {country}
     </div>
   );
@@ -453,9 +586,16 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className={cn("overflow-hidden rounded-[22px] border border-white/10 bg-[#111214] shadow-[0_18px_50px_rgba(0,0,0,0.28)]", className)}>
+    <section
+      className={cn(
+        "overflow-hidden rounded-[22px] border border-white/10 bg-[#111214] shadow-[0_18px_50px_rgba(0,0,0,0.28)]",
+        className,
+      )}
+    >
       <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.04] px-3 py-2.5">
-        <h2 className="text-sm font-semibold tracking-[0.18em] text-white uppercase">{title}</h2>
+        <h2 className="text-sm font-semibold tracking-[0.18em] text-white uppercase">
+          {title}
+        </h2>
         {right}
       </div>
       {children}
@@ -481,8 +621,9 @@ function SocialFooter() {
         ))}
       </div>
       <p>
-        Unofficial fan project · Not affiliated with Formula One Group, FIA, or F1 teams · F1, Formula 1,
-        Grand Prix and related marks are trademarks of Formula One Licensing BV
+        Unofficial fan project · Not affiliated with Formula One Group, FIA, or
+        F1 teams · F1, Formula 1, Grand Prix and related marks are trademarks of
+        Formula One Licensing BV
       </p>
     </footer>
   );
@@ -502,7 +643,10 @@ export function F1DashReplicaPage() {
   const [expandedMap, setExpandedMap] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
 
-  const selectedSessionKey = Number.parseInt(searchParams.get("sessionKey") ?? "", 10);
+  const selectedSessionKey = Number.parseInt(
+    searchParams.get("sessionKey") ?? "",
+    10,
+  );
   const deferredCurrentTimeMs = useDeferredValue(currentTimeMs);
 
   const catalogQuery = useQuery({
@@ -512,12 +656,18 @@ export function F1DashReplicaPage() {
   });
 
   const rows = useMemo(
-    () => (catalogQuery.data?.data ?? []).filter((row) => row.replayReady && row.hasFrames),
+    () =>
+      (catalogQuery.data?.data ?? []).filter(
+        (row) => row.replayReady && row.hasFrames,
+      ),
     [catalogQuery.data?.data],
   );
 
   const availableSeasons = useMemo(
-    () => [...new Set(rows.map((row) => row.season))].sort((left, right) => right - left),
+    () =>
+      [...new Set(rows.map((row) => row.season))].sort(
+        (left, right) => right - left,
+      ),
     [rows],
   );
 
@@ -536,10 +686,15 @@ export function F1DashReplicaPage() {
   const filteredRows = useMemo(() => {
     return rows.filter((row) => {
       if (season !== "all" && row.season !== season) return false;
-      if (filter !== "all" && !lowerIncludes(row.sessionType, filter)) return false;
+      if (filter !== "all" && !lowerIncludes(row.sessionType, filter))
+        return false;
       if (query.trim()) {
         const needle = query.trim().toLowerCase();
-        if (!lowerIncludes(row.meetingName, needle) && !lowerIncludes(row.sessionName, needle)) return false;
+        if (
+          !lowerIncludes(row.meetingName, needle) &&
+          !lowerIncludes(row.sessionName, needle)
+        )
+          return false;
       }
       return true;
     });
@@ -590,7 +745,8 @@ export function F1DashReplicaPage() {
   });
   const replayQuery = useInfiniteQuery({
     queryKey: ["replica", selectedSessionKey, "replay"],
-    queryFn: ({ pageParam }) => fetchReplayChunks(selectedSessionKey, pageParam, pageParam),
+    queryFn: ({ pageParam }) =>
+      fetchReplayChunks(selectedSessionKey, pageParam, pageParam),
     enabled: sessionQueriesEnabled,
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
@@ -608,7 +764,13 @@ export function F1DashReplicaPage() {
       return;
     }
     void fetchNextPage();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage, replayPageCount, sessionQueriesEnabled]);
+  }, [
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    replayPageCount,
+    sessionQueriesEnabled,
+  ]);
 
   const replayEvents = useMemo(
     () =>
@@ -619,19 +781,26 @@ export function F1DashReplicaPage() {
     [replayQuery.data?.pages],
   );
   const replayHasTimeline =
-    replayEvents.length > 1 && replayEvents[0]?.emittedAt !== replayEvents[replayEvents.length - 1]?.emittedAt;
+    replayEvents.length > 1 &&
+    replayEvents[0]?.emittedAt !==
+      replayEvents[replayEvents.length - 1]?.emittedAt;
 
-  const startTimeMs = replayHasTimeline && replayEvents[0]
-    ? Date.parse(replayEvents[0].emittedAt)
-    : activeSession
-      ? Date.parse(activeSession.startsAt)
-      : null;
-  const endTimeMs = replayHasTimeline && replayEvents[replayEvents.length - 1]
-    ? Date.parse(replayEvents[replayEvents.length - 1].emittedAt)
-    : metaQuery.data?.lastFrameAt
-      ? Date.parse(metaQuery.data.lastFrameAt)
-      : null;
-  const totalDurationMs = startTimeMs !== null && endTimeMs !== null ? Math.max(0, endTimeMs - startTimeMs) : 0;
+  const startTimeMs =
+    replayHasTimeline && replayEvents[0]
+      ? Date.parse(replayEvents[0].emittedAt)
+      : activeSession
+        ? Date.parse(activeSession.startsAt)
+        : null;
+  const endTimeMs =
+    replayHasTimeline && replayEvents[replayEvents.length - 1]
+      ? Date.parse(replayEvents[replayEvents.length - 1].emittedAt)
+      : metaQuery.data?.lastFrameAt
+        ? Date.parse(metaQuery.data.lastFrameAt)
+        : null;
+  const totalDurationMs =
+    startTimeMs !== null && endTimeMs !== null
+      ? Math.max(0, endTimeMs - startTimeMs)
+      : 0;
   const playbackTimeMs = currentTimeMs ?? startTimeMs;
 
   useEffect(() => {
@@ -666,8 +835,14 @@ export function F1DashReplicaPage() {
   );
 
   const leaderboard = useMemo(() => getLeaderboard(replayBoot), [replayBoot]);
-  const driverStandings = useMemo(() => deriveDriverStandings(leaderboard), [leaderboard]);
-  const constructorStandings = useMemo(() => deriveConstructorStandings(leaderboard), [leaderboard]);
+  const driverStandings = useMemo(
+    () => deriveDriverStandings(leaderboard),
+    [leaderboard],
+  );
+  const constructorStandings = useMemo(
+    () => deriveConstructorStandings(leaderboard),
+    [leaderboard],
+  );
 
   const sampledTrackTime = useMemo(() => {
     const referenceTime = deferredCurrentTimeMs ?? playbackTimeMs;
@@ -678,7 +853,8 @@ export function F1DashReplicaPage() {
 
   const trackFrameQuery = useQuery({
     queryKey: ["replica", selectedSessionKey, "track-frame", sampledTrackTime],
-    queryFn: () => fetchTrackReplayFrame(selectedSessionKey, sampledTrackTime ?? ""),
+    queryFn: () =>
+      fetchTrackReplayFrame(selectedSessionKey, sampledTrackTime ?? ""),
     enabled: sessionQueriesEnabled && Boolean(sampledTrackTime),
     staleTime: 2_000,
   });
@@ -696,10 +872,20 @@ export function F1DashReplicaPage() {
         sessionDrivers: driversQuery.data?.data ?? [],
         outlinePoints: outlineQuery.data?.data ?? [],
       }),
-    [driversQuery.data?.data, outlineQuery.data?.data, replayBoot, trackDisplayFrames],
+    [
+      driversQuery.data?.data,
+      outlineQuery.data?.data,
+      replayBoot,
+      trackDisplayFrames,
+    ],
   );
   const fallbackTrackModel = useMemo(
-    () => buildFallbackTrackModel(replayBoot, outlineQuery.data?.data ?? [], leaderboard),
+    () =>
+      buildFallbackTrackModel(
+        replayBoot,
+        outlineQuery.data?.data ?? [],
+        leaderboard,
+      ),
     [leaderboard, outlineQuery.data?.data, replayBoot],
   );
   const activeTrackModel = trackModel ?? fallbackTrackModel;
@@ -713,26 +899,44 @@ export function F1DashReplicaPage() {
   }, [playbackTimeMs, raceControlQuery.data?.data]);
 
   const teamRadio = useMemo(
-    () => extractTeamRadioEntries(replayEvents, currentIndex, driversQuery.data?.data ?? []).slice(0, 22),
+    () =>
+      extractTeamRadioEntries(
+        replayEvents,
+        currentIndex,
+        driversQuery.data?.data ?? [],
+      ).slice(0, 22),
     [currentIndex, driversQuery.data?.data, replayEvents],
   );
 
   const weather = extractWeather(replayBoot);
   const trackStatus = extractTrackStatus(replayBoot);
-  const location = activeSession ? inferLocation(activeSession.meetingName) : inferLocation("");
+  const location = activeSession
+    ? inferLocation(activeSession.meetingName)
+    : inferLocation("");
 
-  const driverCount = summaryQuery.data?.driverCount ?? activeSession?.driverCount ?? leaderboard.length;
-  const locationCount = metaQuery.data?.outlinePointCount ?? outlineQuery.data?.data.length ?? 0;
+  const driverCount =
+    summaryQuery.data?.driverCount ??
+    activeSession?.driverCount ??
+    leaderboard.length;
+  const locationCount =
+    metaQuery.data?.outlinePointCount ?? outlineQuery.data?.data.length ?? 0;
   const carCount = trackFrameQuery.data?.data.length ?? 0;
 
   const loadingReplay =
     activeSession !== null &&
-    (bootQuery.isLoading || replayQuery.isLoading || currentEvent === null || replayEvents.length === 0);
+    (bootQuery.isLoading ||
+      replayQuery.isLoading ||
+      currentEvent === null ||
+      replayEvents.length === 0);
 
   const desktopLiveTiming = (
     <Panel
       title="Live Timing"
-      right={<span className="text-xs text-white/55">{leaderboard.length} drivers</span>}
+      right={
+        <span className="text-xs text-white/55">
+          {leaderboard.length} drivers
+        </span>
+      }
       className="h-full"
     >
       <div className="overflow-auto px-3 py-2 text-xs text-white/88">
@@ -746,19 +950,34 @@ export function F1DashReplicaPage() {
         </div>
         <div className="space-y-1 py-2">
           {leaderboard.map((entry) => (
-            <div key={entry.racingNumber} className="grid min-w-[480px] grid-cols-[40px_1.2fr_70px_76px_64px_52px] items-center gap-2 rounded-xl bg-white/[0.025] px-2 py-2">
+            <div
+              key={entry.racingNumber}
+              className="grid min-w-[480px] grid-cols-[40px_1.2fr_70px_76px_64px_52px] items-center gap-2 rounded-xl bg-white/[0.025] px-2 py-2"
+            >
               <div className="font-semibold text-white">{entry.position}</div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex min-w-10 justify-center rounded-md px-2 py-1 text-[10px] font-bold text-black" style={{ backgroundColor: `#${entry.teamColor}` }}>
+                  <span
+                    className="inline-flex min-w-10 justify-center rounded-md px-2 py-1 text-[10px] font-bold text-black"
+                    style={{ backgroundColor: `#${entry.teamColor}` }}
+                  >
                     {entry.shortCode ?? entry.racingNumber}
                   </span>
                   <div className="truncate text-white">{entry.name}</div>
                 </div>
-                <div className="truncate text-[10px] text-white/40">#{entry.racingNumber} {entry.teamName}</div>
+                <div className="truncate text-[10px] text-white/40">
+                  #{entry.racingNumber} {entry.teamName}
+                </div>
               </div>
-              <div className="text-white/65">{entry.gapToLeader ?? (entry.position === 1 ? "P1" : "--")}</div>
-              <div className="text-white/55">{entry.sectors.map((sector) => sector.value ?? "--").slice(0, 3).join(" ")}</div>
+              <div className="text-white/65">
+                {entry.gapToLeader ?? (entry.position === 1 ? "P1" : "--")}
+              </div>
+              <div className="text-white/55">
+                {entry.sectors
+                  .map((sector) => sector.value ?? "--")
+                  .slice(0, 3)
+                  .join(" ")}
+              </div>
               <div className="text-white/65">{entry.numberOfLaps ?? "--"}</div>
               <div className="text-white/55">{entry.inPit ? "PIT" : "DRS"}</div>
             </div>
@@ -773,7 +992,8 @@ export function F1DashReplicaPage() {
       <div className="fixed inset-x-0 top-0 z-[90] bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 px-4 py-1.5 text-center text-xs font-semibold tracking-[0.12em] text-black shadow-lg">
         <span className="inline-flex items-center gap-2">
           <AlertTriangle className="size-3.5 animate-pulse" />
-          This site is in very early alpha — features may be incomplete or change without notice
+          This site is in very early alpha — features may be incomplete or
+          change without notice
           <AlertTriangle className="size-3.5 animate-pulse" />
         </span>
       </div>
@@ -781,17 +1001,28 @@ export function F1DashReplicaPage() {
       <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:block lg:w-64 lg:border-r lg:border-white/10 lg:bg-[#0f1012] lg:pt-8">
         <div className="flex h-full flex-col pt-8">
           <div className="px-4 pb-4">
-            <Link href="/replica" className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-[#e10600] text-sm font-black text-white">F1</div>
+            <Link
+              href="/replica"
+              className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-4"
+            >
+              <div className="flex size-10 items-center justify-center rounded-xl bg-[#e10600] text-sm font-black text-white">
+                F1
+              </div>
               <div>
-                <div className="text-xs tracking-[0.28em] text-white/45 uppercase">F1Dash</div>
-                <div className="text-sm font-semibold text-white">Live Timing</div>
+                <div className="text-xs tracking-[0.28em] text-white/45 uppercase">
+                  F1Dash
+                </div>
+                <div className="text-sm font-semibold text-white">
+                  Live Timing
+                </div>
               </div>
             </Link>
           </div>
 
           <nav className="flex-1 space-y-1 overflow-y-auto px-3 pb-4">
-            <div className="px-2 py-2 text-[11px] tracking-[0.24em] text-white/35 uppercase">Navigation</div>
+            <div className="px-2 py-2 text-[11px] tracking-[0.24em] text-white/35 uppercase">
+              Navigation
+            </div>
             {NAV_ITEMS.map((item) => {
               const active = item.href === "/replica";
               return (
@@ -800,20 +1031,34 @@ export function F1DashReplicaPage() {
                   href={item.href}
                   className={cn(
                     "block rounded-xl border px-3 py-2.5 transition",
-                    active ? "border-white/15 bg-white/[0.07]" : "border-transparent hover:border-white/10 hover:bg-white/[0.04]",
+                    active
+                      ? "border-white/15 bg-white/[0.07]"
+                      : "border-transparent hover:border-white/10 hover:bg-white/[0.04]",
                   )}
                 >
-                  <div className="text-sm font-medium text-white">{item.label}</div>
-                  {item.description ? <div className="text-xs text-white/42">{item.description}</div> : null}
+                  <div className="text-sm font-medium text-white">
+                    {item.label}
+                  </div>
+                  {item.description ? (
+                    <div className="text-xs text-white/42">
+                      {item.description}
+                    </div>
+                  ) : null}
                 </Link>
               );
             })}
           </nav>
 
           <div className="space-y-3 border-t border-white/10 px-4 py-4">
-            <button className="flex w-full items-center justify-center rounded-xl bg-[#e10600] px-4 py-3 text-sm font-semibold text-white">Log In</button>
-            <button className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm font-semibold text-white">Sign Up</button>
-            <div className="text-center text-xs text-white/35">v1.0.6 • 2026 Season</div>
+            <button className="flex w-full items-center justify-center rounded-xl bg-[#e10600] px-4 py-3 text-sm font-semibold text-white">
+              Log In
+            </button>
+            <button className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm font-semibold text-white">
+              Sign Up
+            </button>
+            <div className="text-center text-xs text-white/35">
+              v1.0.6 • 2026 Season
+            </div>
           </div>
         </div>
       </div>
@@ -821,8 +1066,13 @@ export function F1DashReplicaPage() {
       <div className="lg:ml-64">
         <header className="sticky top-6 z-40 border-b border-white/10 bg-[#090a0b]/96 backdrop-blur lg:hidden">
           <div className="flex items-center justify-between px-4 py-3">
-            <Link href="/replica" className="inline-flex items-center gap-2 text-sm font-black tracking-[0.22em] text-white uppercase">
-              <span className="inline-flex size-9 items-center justify-center rounded-xl bg-[#e10600] text-white">F1</span>
+            <Link
+              href="/replica"
+              className="inline-flex items-center gap-2 text-sm font-black tracking-[0.22em] text-white uppercase"
+            >
+              <span className="inline-flex size-9 items-center justify-center rounded-xl bg-[#e10600] text-white">
+                F1
+              </span>
               F1DASH
             </Link>
             <button
@@ -831,23 +1081,44 @@ export function F1DashReplicaPage() {
               onClick={() => setMobileMenuOpen((value) => !value)}
               className="inline-flex size-10 items-center justify-center rounded-lg bg-white/5"
             >
-              {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+              {mobileMenuOpen ? (
+                <X className="size-5" />
+              ) : (
+                <Menu className="size-5" />
+              )}
             </button>
           </div>
           {mobileMenuOpen ? (
             <div className="border-t border-white/10 bg-[#111214] px-3 py-3">
               <div className="max-h-[56vh] space-y-1 overflow-y-auto pr-1">
                 {NAV_ITEMS.map((item) => (
-                  <Link key={item.href} href={item.href} className="block rounded-xl px-3 py-2.5 hover:bg-white/[0.05]" onClick={() => setMobileMenuOpen(false)}>
-                    <div className="text-sm font-medium text-white">{item.label}</div>
-                    {item.description ? <div className="text-xs text-white/42">{item.description}</div> : null}
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="block rounded-xl px-3 py-2.5 hover:bg-white/[0.05]"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <div className="text-sm font-medium text-white">
+                      {item.label}
+                    </div>
+                    {item.description ? (
+                      <div className="text-xs text-white/42">
+                        {item.description}
+                      </div>
+                    ) : null}
                   </Link>
                 ))}
               </div>
               <div className="mt-3 grid gap-2 border-t border-white/10 pt-3">
-                <button className="rounded-xl bg-[#e10600] px-4 py-3 text-sm font-semibold text-white">Log In</button>
-                <button className="rounded-xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm font-semibold text-white">Sign Up</button>
-                <div className="text-center text-xs text-white/35">v1.0.6 • 2026 Season</div>
+                <button className="rounded-xl bg-[#e10600] px-4 py-3 text-sm font-semibold text-white">
+                  Log In
+                </button>
+                <button className="rounded-xl border border-white/15 bg-white/[0.06] px-4 py-3 text-sm font-semibold text-white">
+                  Sign Up
+                </button>
+                <div className="text-center text-xs text-white/35">
+                  v1.0.6 • 2026 Season
+                </div>
               </div>
             </div>
           ) : null}
@@ -857,24 +1128,51 @@ export function F1DashReplicaPage() {
           <div className="mx-auto max-w-[1580px]">
             {loadingReplay && activeSession ? (
               <div className="flex min-h-[72vh] flex-col items-center justify-center rounded-[28px] border border-white/10 bg-[#111214] text-center">
-                <div className="mb-3 text-5xl font-black tracking-[-0.05em] text-white/90">{Math.min(95, Math.max(8, replayQuery.data?.pages.length ? replayQuery.data.pages.length * 12 : 15))}%</div>
+                <div className="mb-3 text-5xl font-black tracking-[-0.05em] text-white/90">
+                  {Math.min(
+                    95,
+                    Math.max(
+                      8,
+                      replayQuery.data?.pages.length
+                        ? replayQuery.data.pages.length * 12
+                        : 15,
+                    ),
+                  )}
+                  %
+                </div>
                 <p className="text-sm text-white/60">Loading race control...</p>
-                <p className="mt-1 text-xs text-white/35">Session: {activeSession.sessionKey}</p>
+                <p className="mt-1 text-xs text-white/35">
+                  Session: {activeSession.sessionKey}
+                </p>
               </div>
             ) : activeSession ? (
               <div className="space-y-4">
                 <div className="rounded-[24px] border border-white/10 bg-[#111214] px-4 py-3 shadow-[0_18px_50px_rgba(0,0,0,0.28)] sm:px-6">
                   <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <div className="flex min-w-0 items-start gap-3">
-                      <FlagChip flag={location.flag} country={location.country} />
+                      <FlagChip
+                        flag={location.flag}
+                        country={location.country}
+                      />
                       <div className="min-w-0">
-                        <h2 className="truncate text-base font-semibold text-white sm:text-lg">{activeSession.meetingName}</h2>
-                        <p className="text-sm text-white/55">{activeSession.sessionType} • {location.city}</p>
+                        <h2 className="truncate text-base font-semibold text-white sm:text-lg">
+                          {activeSession.meetingName}
+                        </h2>
+                        <p className="text-sm text-white/55">
+                          {activeSession.sessionType} • {location.city}
+                        </p>
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <button onClick={() => setIsPlaying((value) => !value)} className="inline-flex size-10 items-center justify-center rounded-xl bg-white/[0.06] hover:bg-white/[0.1]">
-                        {isPlaying ? <Pause className="size-4" /> : <Play className="size-4" />}
+                      <button
+                        onClick={() => setIsPlaying((value) => !value)}
+                        className="inline-flex size-10 items-center justify-center rounded-xl bg-white/[0.06] hover:bg-white/[0.1]"
+                      >
+                        {isPlaying ? (
+                          <Pause className="size-4" />
+                        ) : (
+                          <Play className="size-4" />
+                        )}
                       </button>
                       {SPEEDS.map((value) => (
                         <button
@@ -882,14 +1180,21 @@ export function F1DashReplicaPage() {
                           onClick={() => setSpeed(value)}
                           className={cn(
                             "rounded-lg px-2.5 py-1.5 text-xs font-semibold transition",
-                            speed === value ? "bg-[#e10600] text-white" : "bg-transparent text-white/75 hover:bg-white/[0.06]",
+                            speed === value
+                              ? "bg-[#e10600] text-white"
+                              : "bg-transparent text-white/75 hover:bg-white/[0.06]",
                           )}
                         >
                           {value}x
                         </button>
                       ))}
-                        <div className="rounded-lg bg-white/[0.04] px-3 py-2 text-xs text-white/65">
-                        Elapsed: {formatClock((playbackTimeMs ?? startTimeMs ?? 0) - (startTimeMs ?? 0))} {playbackTimeMs ? formatWallClock(playbackTimeMs) : ""}
+                      <div className="rounded-lg bg-white/[0.04] px-3 py-2 text-xs text-white/65">
+                        Elapsed:{" "}
+                        {formatClock(
+                          (playbackTimeMs ?? startTimeMs ?? 0) -
+                            (startTimeMs ?? 0),
+                        )}{" "}
+                        {playbackTimeMs ? formatWallClock(playbackTimeMs) : ""}
                       </div>
                     </div>
                   </div>
@@ -898,18 +1203,33 @@ export function F1DashReplicaPage() {
                       type="range"
                       min={0}
                       max={totalDurationMs || 1}
-                      value={startTimeMs !== null && playbackTimeMs !== null ? playbackTimeMs - startTimeMs : 0}
-                      onChange={(event) => setCurrentTimeMs((startTimeMs ?? 0) + Number(event.target.value))}
+                      value={
+                        startTimeMs !== null && playbackTimeMs !== null
+                          ? playbackTimeMs - startTimeMs
+                          : 0
+                      }
+                      onChange={(event) =>
+                        setCurrentTimeMs(
+                          (startTimeMs ?? 0) + Number(event.target.value),
+                        )
+                      }
                       className="h-2 w-full cursor-pointer appearance-none rounded-full bg-white/10"
                     />
                   </div>
                   <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-white/45">
-                    <div>{driverCount} drivers {visibleRaceControl.length} RC msgs Loc: {locationCount}, Car: {carCount}</div>
+                    <div>
+                      {driverCount} drivers {visibleRaceControl.length} RC msgs
+                      Loc: {locationCount}, Car: {carCount}
+                    </div>
                     <button
                       onClick={() => {
-                        const params = new URLSearchParams(searchParams.toString());
+                        const params = new URLSearchParams(
+                          searchParams.toString(),
+                        );
                         params.delete("sessionKey");
-                        router.replace(`/replica${params.toString() ? `?${params.toString()}` : ""}`);
+                        router.replace(
+                          `/replica${params.toString() ? `?${params.toString()}` : ""}`,
+                        );
                       }}
                       className="rounded-lg bg-white/[0.05] px-3 py-1.5 text-white/75 transition hover:bg-white/[0.1]"
                     >
@@ -920,20 +1240,40 @@ export function F1DashReplicaPage() {
 
                 <div className="rounded-[24px] border border-white/10 bg-[#111214] px-4 py-4 shadow-[0_18px_50px_rgba(0,0,0,0.28)] sm:px-6">
                   <div className="flex flex-wrap items-center gap-3">
-                    <div className="text-xs tracking-[0.25em] text-white/35 uppercase">{activeSession.season}</div>
-                    <h1 className="text-2xl font-black tracking-[-0.04em] text-white sm:text-[2rem]">{activeSession.meetingName}</h1>
-                    <p className="text-sm text-white/60">{activeSession.sessionType}</p>
-                    <div className={cn("rounded-full px-3 py-1 text-xs font-bold tracking-[0.14em] uppercase", trackStatus.pill)}>{trackStatus.label}</div>
+                    <div className="text-xs tracking-[0.25em] text-white/35 uppercase">
+                      {activeSession.season}
+                    </div>
+                    <h1 className="text-2xl font-black tracking-[-0.04em] text-white sm:text-[2rem]">
+                      {activeSession.meetingName}
+                    </h1>
+                    <p className="text-sm text-white/60">
+                      {activeSession.sessionType}
+                    </p>
+                    <div
+                      className={cn(
+                        "rounded-full px-3 py-1 text-xs font-bold tracking-[0.14em] uppercase",
+                        trackStatus.pill,
+                      )}
+                    >
+                      {trackStatus.label}
+                    </div>
                     <button
                       onClick={() => setSoundEnabled((value) => !value)}
                       aria-label="Enable sound notifications"
                       title="Click to enable sound notifications"
                       className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white/75"
                     >
-                      {soundEnabled ? <Volume2 className="size-4" /> : <VolumeX className="size-4" />}
+                      {soundEnabled ? (
+                        <Volume2 className="size-4" />
+                      ) : (
+                        <VolumeX className="size-4" />
+                      )}
                       {soundEnabled ? "Enabled" : "Muted"}
                     </button>
-                    <Link href="/help" className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white/75">
+                    <Link
+                      href="/help"
+                      className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-white/75"
+                    >
                       <HelpCircle className="size-4" />
                       Help
                     </Link>
@@ -945,22 +1285,55 @@ export function F1DashReplicaPage() {
                     <span>Wind {weather.wind} km/h ↑</span>
                     <span>Rain {weather.rain}</span>
                     <span>Delay</span>
-                    <button className="rounded-lg bg-white/[0.05] px-2 py-1 text-white/75"><ChevronLeft className="size-4" /></button>
-                    <input value="0ms" readOnly className="w-16 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-center text-white" />
-                    <button className="rounded-lg bg-white/[0.05] px-2 py-1 text-white/75"><ChevronRight className="size-4" /></button>
+                    <button className="rounded-lg bg-white/[0.05] px-2 py-1 text-white/75">
+                      <ChevronLeft className="size-4" />
+                    </button>
+                    <input
+                      value="0ms"
+                      readOnly
+                      className="w-16 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-center text-white"
+                    />
+                    <button className="rounded-lg bg-white/[0.05] px-2 py-1 text-white/75">
+                      <ChevronRight className="size-4" />
+                    </button>
                   </div>
                 </div>
 
                 <div className="space-y-4 lg:hidden">
                   {desktopLiveTiming}
-                  <Panel title="Track Map" right={<button onClick={() => setMapMode((value) => (value === "2d" ? "3d" : "2d"))} className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-xs font-semibold text-white">{mapMode === "2d" ? "3D" : "2D"}</button>}>
+                  <Panel
+                    title="Track Map"
+                    right={
+                      <button
+                        onClick={() =>
+                          setMapMode((value) => (value === "2d" ? "3d" : "2d"))
+                        }
+                        className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-xs font-semibold text-white"
+                      >
+                        {mapMode === "2d" ? "3D" : "2D"}
+                      </button>
+                    }
+                  >
                     <div className="px-3 py-3">
                       {activeTrackModel ? (
-                        <div className={cn("overflow-hidden rounded-[18px] bg-[#08090a]", mapMode === "3d" && "[transform:perspective(1200px)_rotateX(50deg)] origin-center transition-transform duration-500")}>
-                          <ReplayTrackCanvas model={activeTrackModel} viewMode="2d" chrome={false} interactive={false} />
+                        <div
+                          className={cn(
+                            "overflow-hidden rounded-[18px] bg-[#08090a]",
+                            mapMode === "3d" &&
+                              "[transform:perspective(1200px)_rotateX(50deg)] origin-center transition-transform duration-500",
+                          )}
+                        >
+                          <ReplayTrackCanvas
+                            model={activeTrackModel}
+                            viewMode="2d"
+                            chrome={false}
+                            interactive={false}
+                          />
                         </div>
                       ) : (
-                        <div className="flex h-56 items-center justify-center rounded-[18px] bg-[#08090a] text-sm text-white/45">Loading Map</div>
+                        <div className="flex h-56 items-center justify-center rounded-[18px] bg-[#08090a] text-sm text-white/45">
+                          Loading Map
+                        </div>
                       )}
                     </div>
                   </Panel>
@@ -972,34 +1345,80 @@ export function F1DashReplicaPage() {
                       title="Track Map"
                       right={
                         <div className="flex items-center gap-2">
-                          <button onClick={() => setMapMode((value) => (value === "2d" ? "3d" : "2d"))} title={`Switch to ${mapMode === "2d" ? "3D" : "2D"} Map`} className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-xs font-semibold text-white">
+                          <button
+                            onClick={() =>
+                              setMapMode((value) =>
+                                value === "2d" ? "3d" : "2d",
+                              )
+                            }
+                            title={`Switch to ${mapMode === "2d" ? "3D" : "2D"} Map`}
+                            className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-xs font-semibold text-white"
+                          >
                             {mapMode === "2d" ? "3D" : "2D"}
                           </button>
-                          <button onClick={() => setExpandedMap((value) => !value)} className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-xs font-semibold text-white">{expandedMap ? "Collapse" : "Expand"}</button>
+                          <button
+                            onClick={() => setExpandedMap((value) => !value)}
+                            className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-xs font-semibold text-white"
+                          >
+                            {expandedMap ? "Collapse" : "Expand"}
+                          </button>
                         </div>
                       }
-                      className={expandedMap ? "lg:min-h-[44rem]" : "lg:min-h-[31rem]"}
+                      className={
+                        expandedMap ? "lg:min-h-[44rem]" : "lg:min-h-[31rem]"
+                      }
                     >
                       <div className="px-4 py-4">
                         {activeTrackModel ? (
-                          <div className={cn("overflow-hidden rounded-[20px] bg-[#08090a] transition-transform duration-500", mapMode === "3d" && "[transform:perspective(1200px)_rotateX(52deg)] origin-center")}>
-                            <ReplayTrackCanvas model={activeTrackModel} viewMode="2d" chrome={false} interactive={false} />
+                          <div
+                            className={cn(
+                              "overflow-hidden rounded-[20px] bg-[#08090a] transition-transform duration-500",
+                              mapMode === "3d" &&
+                                "[transform:perspective(1200px)_rotateX(52deg)] origin-center",
+                            )}
+                          >
+                            <ReplayTrackCanvas
+                              model={activeTrackModel}
+                              viewMode="2d"
+                              chrome={false}
+                              interactive={false}
+                            />
                           </div>
                         ) : (
-                          <div className="flex h-[27rem] items-center justify-center rounded-[20px] bg-[#08090a] text-sm text-white/45">Loading track positions...</div>
+                          <div className="flex h-[27rem] items-center justify-center rounded-[20px] bg-[#08090a] text-sm text-white/45">
+                            Loading track positions...
+                          </div>
                         )}
-                        <div className="mt-3 text-xs text-white/45">S1 S2 S3 Sector boundaries are estimates based on timing data</div>
+                        <div className="mt-3 text-xs text-white/45">
+                          S1 S2 S3 Sector boundaries are estimates based on
+                          timing data
+                        </div>
                       </div>
                     </Panel>
                   </div>
-                  <div className="row-span-3 min-h-[58rem]">{desktopLiveTiming}</div>
+                  <div className="row-span-3 min-h-[58rem]">
+                    {desktopLiveTiming}
+                  </div>
 
                   <div className="col-span-2 grid gap-4 md:grid-cols-3">
-                    <Panel title="Race Control" right={<span className="text-xs text-white/55">{visibleRaceControl.length} RC</span>}>
+                    <Panel
+                      title="Race Control"
+                      right={
+                        <span className="text-xs text-white/55">
+                          {visibleRaceControl.length} RC
+                        </span>
+                      }
+                    >
                       <div className="max-h-[24rem] space-y-3 overflow-y-auto px-3 py-3 text-sm">
                         {visibleRaceControl.map((message) => (
-                          <article key={`${message.sequence}-${message.emittedAt}`} className="rounded-xl bg-white/[0.03] px-3 py-2.5">
-                            <div className="text-[11px] tracking-[0.16em] text-white/45 uppercase">{formatWallClock(Date.parse(message.emittedAt))} {message.flag ?? message.category}</div>
+                          <article
+                            key={`${message.sequence}-${message.emittedAt}`}
+                            className="rounded-xl bg-white/[0.03] px-3 py-2.5"
+                          >
+                            <div className="text-[11px] tracking-[0.16em] text-white/45 uppercase">
+                              {formatWallClock(Date.parse(message.emittedAt))}{" "}
+                              {message.flag ?? message.category}
+                            </div>
                             <p className="mt-1 text-white/90">{message.body}</p>
                           </article>
                         ))}
@@ -1010,17 +1429,36 @@ export function F1DashReplicaPage() {
                       <div className="max-h-[24rem] space-y-2 overflow-y-auto px-3 py-3 text-sm">
                         {teamRadio.length > 0 ? (
                           teamRadio.map((entry) => (
-                            <article key={entry.id} className="rounded-xl bg-white/[0.03] px-3 py-2.5">
+                            <article
+                              key={entry.id}
+                              className="rounded-xl bg-white/[0.03] px-3 py-2.5"
+                            >
                               <div className="flex items-center justify-between gap-2">
-                                <div className="font-medium text-white">{entry.label}</div>
-                                <button className="rounded-lg bg-white/[0.06] px-2 py-1 text-xs text-white">▶ 00:00</button>
+                                <div className="font-medium text-white">
+                                  {entry.label}
+                                </div>
+                                <button className="rounded-lg bg-white/[0.06] px-2 py-1 text-xs text-white">
+                                  ▶ 00:00
+                                </button>
                               </div>
-                              <div className="mt-1 text-[11px] text-white/42">{formatClock(Math.max(0, Date.parse(entry.emittedAt) - (startTimeMs ?? 0)))}</div>
-                              <p className="mt-1 text-white/70">{entry.transcript}</p>
+                              <div className="mt-1 text-[11px] text-white/42">
+                                {formatClock(
+                                  Math.max(
+                                    0,
+                                    Date.parse(entry.emittedAt) -
+                                      (startTimeMs ?? 0),
+                                  ),
+                                )}
+                              </div>
+                              <p className="mt-1 text-white/70">
+                                {entry.transcript}
+                              </p>
                             </article>
                           ))
                         ) : (
-                          <div className="rounded-xl bg-white/[0.03] px-3 py-4 text-white/55">No transcription available</div>
+                          <div className="rounded-xl bg-white/[0.03] px-3 py-4 text-white/55">
+                            No transcription available
+                          </div>
                         )}
                       </div>
                     </Panel>
@@ -1028,17 +1466,44 @@ export function F1DashReplicaPage() {
                     <Panel title="Incidents">
                       <div className="max-h-[24rem] space-y-3 overflow-y-auto px-3 py-3 text-sm">
                         <div className="rounded-xl bg-white/[0.03] px-3 py-2.5 text-white/65">
-                          {visibleRaceControl.filter((message) => lowerIncludes(message.body, "penalty")).length} Pen {" "}
-                          {visibleRaceControl.filter((message) => lowerIncludes(message.body, "warning")).length} Warn {" "}
-                          {visibleRaceControl.filter((message) => lowerIncludes(message.body, "investigation")).length} Inv 0 Sec
+                          {
+                            visibleRaceControl.filter((message) =>
+                              lowerIncludes(message.body, "penalty"),
+                            ).length
+                          }{" "}
+                          Pen{" "}
+                          {
+                            visibleRaceControl.filter((message) =>
+                              lowerIncludes(message.body, "warning"),
+                            ).length
+                          }{" "}
+                          Warn{" "}
+                          {
+                            visibleRaceControl.filter((message) =>
+                              lowerIncludes(message.body, "investigation"),
+                            ).length
+                          }{" "}
+                          Inv 0 Sec
                         </div>
                         {visibleRaceControl
-                          .filter((message) => lowerIncludes(message.body, "investigation") || lowerIncludes(message.body, "incident") || lowerIncludes(message.body, "penalty"))
+                          .filter(
+                            (message) =>
+                              lowerIncludes(message.body, "investigation") ||
+                              lowerIncludes(message.body, "incident") ||
+                              lowerIncludes(message.body, "penalty"),
+                          )
                           .slice(0, 8)
                           .map((message) => (
-                            <article key={`incident-${message.sequence}`} className="rounded-xl bg-white/[0.03] px-3 py-2.5">
-                              <div className="text-[11px] text-white/42">{formatWallClock(Date.parse(message.emittedAt))}</div>
-                              <p className="mt-1 text-white/82">{message.body}</p>
+                            <article
+                              key={`incident-${message.sequence}`}
+                              className="rounded-xl bg-white/[0.03] px-3 py-2.5"
+                            >
+                              <div className="text-[11px] text-white/42">
+                                {formatWallClock(Date.parse(message.emittedAt))}
+                              </div>
+                              <p className="mt-1 text-white/82">
+                                {message.body}
+                              </p>
                             </article>
                           ))}
                       </div>
@@ -1059,9 +1524,19 @@ export function F1DashReplicaPage() {
                           </thead>
                           <tbody>
                             {driverStandings.map((entry) => (
-                              <tr key={entry.position} className="border-t border-white/8">
+                              <tr
+                                key={entry.position}
+                                className="border-t border-white/8"
+                              >
                                 <td className="py-2">{entry.position}</td>
-                                <td className="py-2">{entry.movement === "up" ? "▲ " : entry.movement === "down" ? "▼ " : ""}{entry.code}</td>
+                                <td className="py-2">
+                                  {entry.movement === "up"
+                                    ? "▲ "
+                                    : entry.movement === "down"
+                                      ? "▼ "
+                                      : ""}
+                                  {entry.code}
+                                </td>
                                 <td className="py-2">{entry.points}</td>
                                 <td className="py-2">{entry.delta}</td>
                               </tr>
@@ -1083,7 +1558,10 @@ export function F1DashReplicaPage() {
                           </thead>
                           <tbody>
                             {constructorStandings.map((entry) => (
-                              <tr key={entry.team} className="border-t border-white/8">
+                              <tr
+                                key={entry.team}
+                                className="border-t border-white/8"
+                              >
                                 <td className="py-2">{entry.position}</td>
                                 <td className="py-2">{entry.team}</td>
                                 <td className="py-2">{entry.points}</td>
@@ -1098,11 +1576,24 @@ export function F1DashReplicaPage() {
                 </div>
 
                 <div className="space-y-4 lg:hidden">
-                  <Panel title="Race Control" right={<span className="text-xs text-white/55">{visibleRaceControl.length} RC</span>}>
+                  <Panel
+                    title="Race Control"
+                    right={
+                      <span className="text-xs text-white/55">
+                        {visibleRaceControl.length} RC
+                      </span>
+                    }
+                  >
                     <div className="max-h-[19rem] space-y-3 overflow-y-auto px-3 py-3 text-sm">
                       {visibleRaceControl.map((message: RaceControlMessage) => (
-                        <article key={`${message.sequence}-${message.emittedAt}`} className="rounded-xl bg-white/[0.03] px-3 py-2.5">
-                          <div className="text-[11px] tracking-[0.16em] text-white/45 uppercase">{formatWallClock(Date.parse(message.emittedAt))} {message.flag ?? message.category}</div>
+                        <article
+                          key={`${message.sequence}-${message.emittedAt}`}
+                          className="rounded-xl bg-white/[0.03] px-3 py-2.5"
+                        >
+                          <div className="text-[11px] tracking-[0.16em] text-white/45 uppercase">
+                            {formatWallClock(Date.parse(message.emittedAt))}{" "}
+                            {message.flag ?? message.category}
+                          </div>
                           <p className="mt-1 text-white/90">{message.body}</p>
                         </article>
                       ))}
@@ -1112,22 +1603,48 @@ export function F1DashReplicaPage() {
                   <div className="grid gap-4 md:grid-cols-2">
                     <Panel title="Team Radio">
                       <div className="max-h-[14rem] space-y-2 overflow-y-auto px-3 py-3 text-sm">
-                        {teamRadio.length > 0 ? teamRadio.map((entry) => (
-                          <article key={entry.id} className="rounded-xl bg-white/[0.03] px-3 py-2.5">
-                            <div className="font-medium text-white">{entry.label}</div>
-                            <p className="mt-1 text-white/65">{entry.transcript}</p>
-                          </article>
-                        )) : <div className="rounded-xl bg-white/[0.03] px-3 py-4 text-white/55">0 TR No Radio</div>}
+                        {teamRadio.length > 0 ? (
+                          teamRadio.map((entry) => (
+                            <article
+                              key={entry.id}
+                              className="rounded-xl bg-white/[0.03] px-3 py-2.5"
+                            >
+                              <div className="font-medium text-white">
+                                {entry.label}
+                              </div>
+                              <p className="mt-1 text-white/65">
+                                {entry.transcript}
+                              </p>
+                            </article>
+                          ))
+                        ) : (
+                          <div className="rounded-xl bg-white/[0.03] px-3 py-4 text-white/55">
+                            0 TR No Radio
+                          </div>
+                        )}
                       </div>
                     </Panel>
                     <Panel title="Incidents">
                       <div className="max-h-[14rem] space-y-2 overflow-y-auto px-3 py-3 text-sm">
-                        {visibleRaceControl.filter((message) => lowerIncludes(message.body, "investigation") || lowerIncludes(message.body, "incident") || lowerIncludes(message.body, "penalty")).slice(0, 6).map((message) => (
-                          <article key={`m-${message.sequence}`} className="rounded-xl bg-white/[0.03] px-3 py-2.5">
-                            <p className="text-white/82">{message.body}</p>
-                          </article>
-                        ))}
-                        <div className="text-center text-xs text-white/35">&larr; Swipe for more panels &rarr;</div>
+                        {visibleRaceControl
+                          .filter(
+                            (message) =>
+                              lowerIncludes(message.body, "investigation") ||
+                              lowerIncludes(message.body, "incident") ||
+                              lowerIncludes(message.body, "penalty"),
+                          )
+                          .slice(0, 6)
+                          .map((message) => (
+                            <article
+                              key={`m-${message.sequence}`}
+                              className="rounded-xl bg-white/[0.03] px-3 py-2.5"
+                            >
+                              <p className="text-white/82">{message.body}</p>
+                            </article>
+                          ))}
+                        <div className="text-center text-xs text-white/35">
+                          &larr; Swipe for more panels &rarr;
+                        </div>
                       </div>
                     </Panel>
                   </div>
@@ -1138,7 +1655,10 @@ export function F1DashReplicaPage() {
                         <table className="w-full text-sm text-white/86">
                           <tbody>
                             {driverStandings.slice(0, 12).map((entry) => (
-                              <tr key={entry.position} className="border-t border-white/8">
+                              <tr
+                                key={entry.position}
+                                className="border-t border-white/8"
+                              >
                                 <td className="py-2">{entry.position}</td>
                                 <td className="py-2">{entry.code}</td>
                                 <td className="py-2">{entry.points}</td>
@@ -1154,7 +1674,10 @@ export function F1DashReplicaPage() {
                         <table className="w-full text-sm text-white/86">
                           <tbody>
                             {constructorStandings.map((entry) => (
-                              <tr key={entry.team} className="border-t border-white/8">
+                              <tr
+                                key={entry.team}
+                                className="border-t border-white/8"
+                              >
                                 <td className="py-2">{entry.position}</td>
                                 <td className="py-2">{entry.team}</td>
                                 <td className="py-2">{entry.points}</td>
@@ -1175,18 +1698,30 @@ export function F1DashReplicaPage() {
                     <Copy className="size-3.5" />
                     Replica Route
                   </div>
-                  <h1 className="mt-5 text-3xl font-black tracking-[-0.05em] text-white sm:text-5xl">Race Replay</h1>
+                  <h1 className="mt-5 text-3xl font-black tracking-[-0.05em] text-white sm:text-5xl">
+                    Race Replay
+                  </h1>
                   <p className="mt-4 max-w-xl text-base leading-7 text-white/58">
-                    Relive historic F1 sessions with full timing, radio, race control, a live-style track map, and a one-route replay dashboard that mirrors the public F1Dash experience.
+                    Relive historic F1 sessions with full timing, radio, race
+                    control, a live-style track map, and a one-route replay
+                    dashboard that mirrors the public F1Dash experience.
                   </p>
                   <div className="mt-8 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
-                      <div className="text-xs tracking-[0.2em] text-white/40 uppercase">Playback</div>
-                      <div className="mt-2 text-lg font-semibold text-white">1x · 2x · 5x · 10x</div>
+                      <div className="text-xs tracking-[0.2em] text-white/40 uppercase">
+                        Playback
+                      </div>
+                      <div className="mt-2 text-lg font-semibold text-white">
+                        1x · 2x · 5x · 10x
+                      </div>
                     </div>
                     <div className="rounded-[22px] border border-white/10 bg-white/[0.04] p-4">
-                      <div className="text-xs tracking-[0.2em] text-white/40 uppercase">Panels</div>
-                      <div className="mt-2 text-lg font-semibold text-white">Timing · Map · RC · Radio</div>
+                      <div className="text-xs tracking-[0.2em] text-white/40 uppercase">
+                        Panels
+                      </div>
+                      <div className="mt-2 text-lg font-semibold text-white">
+                        Timing · Map · RC · Radio
+                      </div>
                     </div>
                   </div>
                 </section>
@@ -1194,31 +1729,74 @@ export function F1DashReplicaPage() {
                 <section className="rounded-[28px] border border-white/10 bg-[#111214] p-6 shadow-[0_18px_50px_rgba(0,0,0,0.28)]">
                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <h2 className="text-xl font-bold tracking-[-0.03em] text-white">Replay Catalog</h2>
-                      <p className="mt-1 text-sm text-white/42">{filteredRows.length} sessions available for replay</p>
+                      <h2 className="text-xl font-bold tracking-[-0.03em] text-white">
+                        Replay Catalog
+                      </h2>
+                      <p className="mt-1 text-sm text-white/42">
+                        {filteredRows.length} sessions available for replay
+                      </p>
                     </div>
                     <div className="relative w-full md:w-72">
                       <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-white/35" />
-                      <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search sessions..." className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white outline-none placeholder:text-white/28 focus:border-white/25" />
+                      <input
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                        placeholder="Search sessions..."
+                        className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm text-white outline-none placeholder:text-white/28 focus:border-white/25"
+                      />
                     </div>
                   </div>
 
                   <div className="mt-5 flex flex-wrap gap-2">
                     {availableSeasons.map((value) => (
-                      <button key={value} onClick={() => setSeason(value)} className={cn("rounded-xl px-3 py-2 text-sm font-semibold transition", season === value ? "bg-white text-black" : "bg-white/[0.05] text-white/72 hover:bg-white/[0.08]")}>{value}</button>
+                      <button
+                        key={value}
+                        onClick={() => setSeason(value)}
+                        className={cn(
+                          "rounded-xl px-3 py-2 text-sm font-semibold transition",
+                          season === value
+                            ? "bg-white text-black"
+                            : "bg-white/[0.05] text-white/72 hover:bg-white/[0.08]",
+                        )}
+                      >
+                        {value}
+                      </button>
                     ))}
-                    <button onClick={() => setSeason("all")} className={cn("rounded-xl px-3 py-2 text-sm font-semibold transition", season === "all" ? "bg-white text-black" : "bg-white/[0.05] text-white/72 hover:bg-white/[0.08]")}>All</button>
+                    <button
+                      onClick={() => setSeason("all")}
+                      className={cn(
+                        "rounded-xl px-3 py-2 text-sm font-semibold transition",
+                        season === "all"
+                          ? "bg-white text-black"
+                          : "bg-white/[0.05] text-white/72 hover:bg-white/[0.08]",
+                      )}
+                    >
+                      All
+                    </button>
                   </div>
 
                   <div className="mt-3 flex flex-wrap gap-2">
-                    {([
-                      ["All", "all"],
-                      ["Race", "race"],
-                      ["Qualifying", "qualifying"],
-                      ["Practice", "practice"],
-                      ["Sprint", "sprint"],
-                    ] as const).map(([label, value]) => (
-                      <button key={value} onClick={() => setFilter(value)} className={cn("rounded-full px-3 py-1.5 text-sm font-medium transition", filter === value ? "bg-[#e10600] text-white" : "bg-white/[0.05] text-white/70 hover:bg-white/[0.08]")}>{label}</button>
+                    {(
+                      [
+                        ["All", "all"],
+                        ["Race", "race"],
+                        ["Qualifying", "qualifying"],
+                        ["Practice", "practice"],
+                        ["Sprint", "sprint"],
+                      ] as const
+                    ).map(([label, value]) => (
+                      <button
+                        key={value}
+                        onClick={() => setFilter(value)}
+                        className={cn(
+                          "rounded-full px-3 py-1.5 text-sm font-medium transition",
+                          filter === value
+                            ? "bg-[#e10600] text-white"
+                            : "bg-white/[0.05] text-white/70 hover:bg-white/[0.08]",
+                        )}
+                      >
+                        {label}
+                      </button>
                     ))}
                   </div>
 
@@ -1232,17 +1810,35 @@ export function F1DashReplicaPage() {
                           onClick={() => {
                             setCurrentTimeMs(null);
                             setIsPlaying(true);
-                            router.replace(`/replica?sessionKey=${row.sessionKey}`, { scroll: false });
+                            router.replace(
+                              `/replica?sessionKey=${row.sessionKey}`,
+                              { scroll: false },
+                            );
                           }}
                           className="rounded-[24px] border border-white/10 bg-white/[0.03] p-4 text-left transition hover:border-white/20 hover:bg-white/[0.05]"
                         >
                           <div className="mb-3 flex items-center justify-between gap-3">
-                            <span className={cn("rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-[0.18em] uppercase", classForSessionType(row.sessionType))}>{row.sessionType}</span>
-                            <span className="text-[11px] text-white/35">{row.frameCount.toLocaleString()} frames</span>
+                            <span
+                              className={cn(
+                                "rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-[0.18em] uppercase",
+                                classForSessionType(row.sessionType),
+                              )}
+                            >
+                              {row.sessionType}
+                            </span>
+                            <span className="text-[11px] text-white/35">
+                              {row.frameCount.toLocaleString()} frames
+                            </span>
                           </div>
-                          <h3 className="text-lg font-bold leading-tight text-white">{row.meetingName}</h3>
-                          <p className="mt-1 text-sm text-white/45">{inferred.city} • {inferred.country}</p>
-                          <p className="mt-2 text-sm text-white/62">{formatCardDate(row.startsAt)}</p>
+                          <h3 className="text-lg font-bold leading-tight text-white">
+                            {row.meetingName}
+                          </h3>
+                          <p className="mt-1 text-sm text-white/45">
+                            {inferred.city} • {inferred.country}
+                          </p>
+                          <p className="mt-2 text-sm text-white/62">
+                            {formatCardDate(row.startsAt)}
+                          </p>
                         </button>
                       );
                     })}

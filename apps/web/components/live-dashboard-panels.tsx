@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { LiveEnvelope, RaceControlMessage } from "@f1-hub/contracts";
-import { ArrowRight, Radio, Waves, Wind } from "lucide-react";
+import { Radio, Waves, Wind } from "lucide-react";
 
 import { getLeaderboard } from "@/lib/session-insights";
 import { Button } from "@/components/ui/button";
@@ -93,7 +93,17 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-export function PanelShell({ title, description, children, className = "" }: { title: string; description?: string; children: React.ReactNode; className?: string; }) {
+export function PanelShell({
+  title,
+  description,
+  children,
+  className = "",
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
     <Card className={`bg-[var(--panel)]/95 ${className}`.trim()}>
       <CardHeader className="pb-3">
@@ -105,9 +115,24 @@ export function PanelShell({ title, description, children, className = "" }: { t
   );
 }
 
-export function SessionSwitcherPanel({ sessions, activeSessionKey, onSelect }: { sessions: Array<{ sessionKey: number; sessionName: string; meetingName: string }>; activeSessionKey?: number; onSelect: (sessionKey: number) => void; }) {
+export function SessionSwitcherPanel({
+  sessions,
+  activeSessionKey,
+  onSelect,
+}: {
+  sessions: Array<{
+    sessionKey: number;
+    sessionName: string;
+    meetingName: string;
+  }>;
+  activeSessionKey?: number;
+  onSelect: (sessionKey: number) => void;
+}) {
   return (
-    <PanelShell title="Live Sessions" description="Switch the control room between active sessions.">
+    <PanelShell
+      title="Live Sessions"
+      description="Switch the control room between active sessions."
+    >
       <div className="space-y-2">
         {sessions.map((session) => (
           <button
@@ -120,7 +145,9 @@ export function SessionSwitcherPanel({ sessions, activeSessionKey, onSelect }: {
               <div className="font-medium">{session.sessionName}</div>
               <div className="text-xs opacity-80">{session.meetingName}</div>
             </div>
-            <span className="text-[10px] uppercase tracking-[0.18em]">Live</span>
+            <span className="text-[10px] uppercase tracking-[0.18em]">
+              Live
+            </span>
           </button>
         ))}
       </div>
@@ -128,11 +155,23 @@ export function SessionSwitcherPanel({ sessions, activeSessionKey, onSelect }: {
   );
 }
 
-export function MetricPanel({ label, value, hint }: { label: string; value: string; hint: string; }) {
+export function MetricPanel({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+}) {
   return (
     <div className="rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel)] px-4 py-3">
-      <div className="text-[10px] uppercase tracking-[0.2em] text-[var(--muted-foreground)]">{label}</div>
-      <div className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[var(--foreground)]">{value}</div>
+      <div className="text-[10px] uppercase tracking-[0.2em] text-[var(--muted-foreground)]">
+        {label}
+      </div>
+      <div className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-[var(--foreground)]">
+        {value}
+      </div>
       <div className="mt-1 text-xs text-[var(--muted-foreground)]">{hint}</div>
     </div>
   );
@@ -140,17 +179,30 @@ export function MetricPanel({ label, value, hint }: { label: string; value: stri
 
 export function TimingTowerPanel({ rows }: { rows: TimingRow[] }) {
   return (
-    <PanelShell title="Timing Tower" description="Compact live standings from the normalized session state." className="h-full">
+    <PanelShell
+      title="Timing Tower"
+      description="Compact live standings from the normalized session state."
+      className="h-full"
+    >
       <div className="space-y-2">
         {rows.length === 0 ? (
-          <p className="text-sm text-[var(--muted-foreground)]">Timing data has not materialized yet.</p>
+          <p className="text-sm text-[var(--muted-foreground)]">
+            Timing data has not materialized yet.
+          </p>
         ) : (
           rows.slice(0, 12).map((driver) => (
-            <div key={driver.racingNumber} className={`grid grid-cols-[48px_1fr_auto] items-center gap-3 rounded-(--radius-md) border px-3 py-2.5 ${rowStateClasses(driver)}`}>
-              <div className="text-xl font-semibold tracking-[-0.04em]">P{driver.position}</div>
+            <div
+              key={driver.racingNumber}
+              className={`grid grid-cols-[48px_1fr_auto] items-center gap-3 rounded-(--radius-md) border px-3 py-2.5 ${rowStateClasses(driver)}`}
+            >
+              <div className="text-xl font-semibold tracking-[-0.04em]">
+                P{driver.position}
+              </div>
               <div className="min-w-0">
                 <div className="truncate font-medium">{driver.name}</div>
-                <div className="truncate text-xs text-[var(--muted-foreground)]">#{driver.racingNumber} {driver.teamName}</div>
+                <div className="truncate text-xs text-[var(--muted-foreground)]">
+                  #{driver.racingNumber} {driver.teamName}
+                </div>
                 <div className="mt-1 flex flex-wrap gap-1">
                   {driver.currentCompound ? (
                     <span className="rounded-full border border-[var(--border)] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-[var(--muted-foreground)]">
@@ -163,7 +215,9 @@ export function TimingTowerPanel({ rows }: { rows: TimingRow[] }) {
                     </span>
                   ) : null}
                   {driver.currentStintLaps !== undefined ? (
-                    <span className={`rounded-full border px-1.5 py-0.5 text-[10px] uppercase tracking-[0.14em] ${tireAgeTone(driver.currentStintLaps)}`}>
+                    <span
+                      className={`rounded-full border px-1.5 py-0.5 text-[10px] uppercase tracking-[0.14em] ${tireAgeTone(driver.currentStintLaps)}`}
+                    >
                       stint {driver.currentStintLaps}L
                     </span>
                   ) : null}
@@ -183,9 +237,15 @@ export function TimingTowerPanel({ rows }: { rows: TimingRow[] }) {
                 </div>
               </div>
               <div className="text-right text-xs text-[var(--muted-foreground)]">
-                <div>{driver.position === 1 ? "Leader" : driver.gapToLeader ?? "-"}</div>
+                <div>
+                  {driver.position === 1
+                    ? "Leader"
+                    : (driver.gapToLeader ?? "-")}
+                </div>
                 <div>{driver.lastLapTime ?? "--"}</div>
-                <div className="mt-1">{driver.intervalToAhead ?? driver.bestLapTime ?? "--"}</div>
+                <div className="mt-1">
+                  {driver.intervalToAhead ?? driver.bestLapTime ?? "--"}
+                </div>
                 <div className="mt-1 flex justify-end gap-1 font-mono text-[10px]">
                   {driver.sectors.slice(0, 3).map((sector, index) => (
                     <span
@@ -205,20 +265,36 @@ export function TimingTowerPanel({ rows }: { rows: TimingRow[] }) {
   );
 }
 
-export function RaceControlPanel({ messages }: { messages: RaceControlMessage[] }) {
+export function RaceControlPanel({
+  messages,
+}: {
+  messages: RaceControlMessage[];
+}) {
   return (
-    <PanelShell title="Race Control" description="Recent control messages for the active session.">
+    <PanelShell
+      title="Race Control"
+      description="Recent control messages for the active session."
+    >
       <div className="space-y-3">
         {messages.length === 0 ? (
-          <p className="text-sm text-[var(--muted-foreground)]">No race control messages have landed yet.</p>
+          <p className="text-sm text-[var(--muted-foreground)]">
+            No race control messages have landed yet.
+          </p>
         ) : (
           messages.slice(0, 6).map((message) => (
-            <div key={`${message.sessionKey}-${message.sequence}`} className="rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel-elevated)] p-3">
+            <div
+              key={`${message.sessionKey}-${message.sequence}`}
+              className="rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel-elevated)] p-3"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="font-medium">{message.title}</div>
-                <div className="text-xs text-[var(--muted-foreground)]">{formatDate(message.emittedAt)}</div>
+                <div className="text-xs text-[var(--muted-foreground)]">
+                  {formatDate(message.emittedAt)}
+                </div>
               </div>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">{message.body}</p>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+                {message.body}
+              </p>
             </div>
           ))
         )}
@@ -229,18 +305,32 @@ export function RaceControlPanel({ messages }: { messages: RaceControlMessage[] 
 
 export function SignalFeedPanel({ envelopes }: { envelopes: LiveEnvelope[] }) {
   return (
-    <PanelShell title="Signal Feed" description="Thin rolling window of recent live packets.">
+    <PanelShell
+      title="Signal Feed"
+      description="Thin rolling window of recent live packets."
+    >
       <div className="space-y-2">
         {envelopes.length === 0 ? (
-          <p className="text-sm text-[var(--muted-foreground)]">Live packets have not appeared yet.</p>
+          <p className="text-sm text-[var(--muted-foreground)]">
+            Live packets have not appeared yet.
+          </p>
         ) : (
           envelopes.map((envelope) => (
-            <div key={envelope.sequence} className="grid gap-2 rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel-elevated)] p-3 text-sm">
+            <div
+              key={envelope.sequence}
+              className="grid gap-2 rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel-elevated)] p-3 text-sm"
+            >
               <div className="flex items-center justify-between gap-3">
-                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">#{envelope.sequence}</div>
-                <div className="text-xs text-[var(--muted-foreground)]">{formatDate(envelope.emittedAt)}</div>
+                <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--muted-foreground)]">
+                  #{envelope.sequence}
+                </div>
+                <div className="text-xs text-[var(--muted-foreground)]">
+                  {formatDate(envelope.emittedAt)}
+                </div>
               </div>
-              <div className="truncate font-medium text-[var(--foreground)]">{envelope.topic}</div>
+              <div className="truncate font-medium text-[var(--foreground)]">
+                {envelope.topic}
+              </div>
             </div>
           ))
         )}
@@ -249,7 +339,19 @@ export function SignalFeedPanel({ envelopes }: { envelopes: LiveEnvelope[] }) {
   );
 }
 
-export function WeatherPanel({ airTemp, trackTemp, humidity, windSpeed, rainfall }: { airTemp?: string | null; trackTemp?: string | null; humidity?: string | null; windSpeed?: string | null; rainfall?: string | null; }) {
+export function WeatherPanel({
+  airTemp,
+  trackTemp,
+  humidity,
+  windSpeed,
+  rainfall,
+}: {
+  airTemp?: string | null;
+  trackTemp?: string | null;
+  humidity?: string | null;
+  windSpeed?: string | null;
+  rainfall?: string | null;
+}) {
   return (
     <PanelShell title="Weather" description="Fast read of current conditions.">
       <div className="grid gap-3 sm:grid-cols-2">
@@ -258,14 +360,18 @@ export function WeatherPanel({ airTemp, trackTemp, humidity, windSpeed, rainfall
             <Waves className="size-4" />
             {airTemp ?? "--"}C air
           </div>
-          <div className="mt-1 text-sm text-[var(--muted-foreground)]">{trackTemp ?? "--"}C track</div>
+          <div className="mt-1 text-sm text-[var(--muted-foreground)]">
+            {trackTemp ?? "--"}C track
+          </div>
         </div>
         <div className="rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel-elevated)] p-4">
           <div className="flex items-center gap-2 text-[var(--foreground)]">
             <Wind className="size-4" />
             {windSpeed ?? "--"} km/h
           </div>
-          <div className="mt-1 text-sm text-[var(--muted-foreground)]">Humidity {humidity ?? "--"}% / Rain {rainfall ?? "--"}</div>
+          <div className="mt-1 text-sm text-[var(--muted-foreground)]">
+            Humidity {humidity ?? "--"}% / Rain {rainfall ?? "--"}
+          </div>
         </div>
       </div>
     </PanelShell>
@@ -274,20 +380,27 @@ export function WeatherPanel({ airTemp, trackTemp, humidity, windSpeed, rainfall
 
 export function WorkspaceLinksPanel({ sessionKey }: { sessionKey?: number }) {
   return (
-    <PanelShell title="Workspace Stack" description="Jump between the live shell and historical analysis routes.">
+    <PanelShell
+      title="Workspace Stack"
+      description="Jump between the live shell and historical analysis routes."
+    >
       <div className="grid gap-3">
         <div className="rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel-elevated)] p-4 text-sm text-[var(--muted-foreground)]">
-          Live control room, dedicated map, chunked simulation, and telemetry lab now live as separate workloads.
+          Live control room, chunked simulation, and telemetry lab now live as
+          separate workloads.
         </div>
         <div className="flex flex-wrap gap-3">
           <Button asChild>
-            <Link href="/map">Open map<ArrowRight className="size-4" /></Link>
+            <Link href="/simulate">
+              <Radio className="size-4" />
+              Simulate hub
+            </Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/simulate"><Radio className="size-4" />Simulate hub</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/telemetry"><Waves className="size-4" />Telemetry hub</Link>
+            <Link href="/telemetry">
+              <Waves className="size-4" />
+              Telemetry hub
+            </Link>
           </Button>
           {sessionKey ? (
             <Button asChild variant="outline">
