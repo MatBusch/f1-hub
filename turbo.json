@@ -9,6 +9,13 @@
       "env": [
         "TINYBIRD_TOKEN",
         "TINYBIRD_URL",
+        "RESEND_API_KEY",
+        "AUTH_FROM_EMAIL",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "DATABASE_URL",
+        "POSTGRES_URL",
+        "AUTH_DATABASE_URL",
         "COLLECTOR_DRY_RUN",
         "COLLECTOR_FLUSH_INTERVAL_MS"
       ],
@@ -26,6 +33,13 @@
       "env": [
         "TINYBIRD_TOKEN",
         "TINYBIRD_URL",
+        "RESEND_API_KEY",
+        "AUTH_FROM_EMAIL",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "DATABASE_URL",
+        "POSTGRES_URL",
+        "AUTH_DATABASE_URL",
         "COLLECTOR_DRY_RUN",
         "COLLECTOR_FLUSH_INTERVAL_MS"
       ],
