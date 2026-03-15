@@ -1,18 +1,28 @@
-import { getTinybirdRepository, jsonRoute, withCache } from "@/lib/server/tinybird";
+import {
+  getTinybirdRepository,
+  jsonRoute,
+  withCache,
+} from "@/lib/server/tinybird";
+import { authenticatedJsonRoute } from "@/lib/server/auth-session";
 
 type RouteContext = {
   params: Promise<{ sessionKey: string }>;
 };
 
-export async function GET(_: Request, context: RouteContext) {
-  return jsonRoute(async () => {
-    const { sessionKey } = await context.params;
-    const parsedSessionKey = Number.parseInt(sessionKey, 10);
+export async function GET(request: Request, context: RouteContext) {
+  return authenticatedJsonRoute(
+    request,
+    async () => {
+      const { sessionKey } = await context.params;
+      const parsedSessionKey = Number.parseInt(sessionKey, 10);
 
-    if (!Number.isFinite(parsedSessionKey) || parsedSessionKey < 0) {
-      throw new Error('Invalid "sessionKey" route parameter.');
-    }
+      if (!Number.isFinite(parsedSessionKey) || parsedSessionKey < 0) {
+        throw new Error('Invalid "sessionKey" route parameter.');
+      }
 
-    return getTinybirdRepository().getSessionSummary(parsedSessionKey);
-  }, withCache(60, 300));
+      return getTinybirdRepository().getSessionSummary(parsedSessionKey);
+    },
+    jsonRoute,
+    withCache(60, 300),
+  );
 }

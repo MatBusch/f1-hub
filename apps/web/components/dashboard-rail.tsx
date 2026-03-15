@@ -9,6 +9,7 @@ import {
   PlaySquare,
   Waves,
 } from "lucide-react";
+import { AuthStatus } from "@/components/auth/auth-status";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const primaryLinks = [
@@ -63,11 +64,16 @@ export function DashboardRail() {
           })}
         </div>
 
-        <div className="mt-auto flex items-center justify-between border border-[var(--border)] bg-[var(--background)] px-3 py-2">
-          <span className="text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
-            Theme
-          </span>
-          <ThemeToggle />
+        <div className="mt-auto space-y-3">
+          <div className="border border-[var(--border)] bg-[var(--background)] px-3 py-3">
+            <AuthStatus />
+          </div>
+          <div className="flex items-center justify-between border border-[var(--border)] bg-[var(--background)] px-3 py-2">
+            <span className="text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+              Theme
+            </span>
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </aside>

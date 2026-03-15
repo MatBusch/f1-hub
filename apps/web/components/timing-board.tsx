@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, TimerReset } from "lucide-react";
+import { TimerReset } from "lucide-react";
 
 import NumberFlow from "@number-flow/react";
 
@@ -26,7 +25,7 @@ import {
   SignalFeedPanel,
   TimingTowerPanel,
 } from "@/components/live-dashboard-panels";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -34,6 +33,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CtaLink } from "@/components/ui/cta-link";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-AU", {
@@ -43,7 +43,9 @@ function formatDate(value: string) {
 }
 
 export function TimingBoard() {
-  const [selectedSessionKey, setSelectedSessionKey] = useState<number | null>(null);
+  const [selectedSessionKey, setSelectedSessionKey] = useState<number | null>(
+    null,
+  );
 
   const liveSessionsQuery = useQuery({
     queryKey: ["sessions", "timing-live-catalog"],
@@ -61,7 +63,10 @@ export function TimingBoard() {
     }
 
     setSelectedSessionKey((current) => {
-      if (current && liveSessions.some((session) => session.sessionKey === current)) {
+      if (
+        current &&
+        liveSessions.some((session) => session.sessionKey === current)
+      ) {
         return current;
       }
 
@@ -70,7 +75,8 @@ export function TimingBoard() {
   }, [liveSessions]);
 
   const activeSession = useMemo(
-    () => liveSessions.find((session) => session.sessionKey === selectedSessionKey),
+    () =>
+      liveSessions.find((session) => session.sessionKey === selectedSessionKey),
     [liveSessions, selectedSessionKey],
   );
   const activeSessionKey = activeSession?.sessionKey;
@@ -84,19 +90,30 @@ export function TimingBoard() {
   const raceControl = useLiveSessionStore((state) => state.raceControl);
 
   const leaderboard = useMemo(() => getLeaderboard(boot ?? undefined), [boot]);
-  const sessionState = useMemo(() => getSessionState(boot ?? undefined), [boot]);
+  const sessionState = useMemo(
+    () => getSessionState(boot ?? undefined),
+    [boot],
+  );
   const weather = useMemo(() => getWeather(boot ?? undefined), [boot]);
   const topicCoverage = useMemo(
     () => getBootTopicCoverage(boot ?? undefined),
     [boot],
   );
   const recentSignals = useMemo(
-    () => [...liveWindow].sort((left, right) => right.sequence - left.sequence).slice(0, 10),
+    () =>
+      [...liveWindow]
+        .sort((left, right) => right.sequence - left.sequence)
+        .slice(0, 10),
     [liveWindow],
   );
-  const availableTopicCount = topicCoverage.filter((topic) => topic.available).length;
+  const availableTopicCount = topicCoverage.filter(
+    (topic) => topic.available,
+  ).length;
 
-  if (liveSessionsQuery.isLoading || (activeSessionKey !== undefined && liveStatus === "loading")) {
+  if (
+    liveSessionsQuery.isLoading ||
+    (activeSessionKey !== undefined && liveStatus === "loading")
+  ) {
     return (
       <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_28%),linear-gradient(180deg,var(--background),var(--background-elevated))]">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 md:px-8 md:py-10">
@@ -122,12 +139,9 @@ export function TimingBoard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button asChild>
-                <Link href="/dashboard">
-                  Open dashboard
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
+              <CtaLink href="/dashboard" variant="default">
+                Open dashboard
+              </CtaLink>
             </CardContent>
           </Card>
         </div>
@@ -162,7 +176,11 @@ export function TimingBoard() {
                 />
                 <MetricPanel
                   label="Track"
-                  value={sessionState?.trackMessage ?? sessionState?.trackStatus ?? "Unknown"}
+                  value={
+                    sessionState?.trackMessage ??
+                    sessionState?.trackStatus ??
+                    "Unknown"
+                  }
                   hint="Current control condition"
                 />
                 <MetricPanel
@@ -173,12 +191,46 @@ export function TimingBoard() {
               </div>
             </PanelShell>
 
-            <PanelShell title="Atmosphere" description="Quick weather and signal context.">
+            <PanelShell
+              title="Atmosphere"
+              description="Quick weather and signal context."
+            >
               <div className="space-y-2 text-sm text-[var(--muted-foreground)]">
-                <div>Air {weather?.airTemp != null ? <NumberFlow value={Number(weather.airTemp)} suffix="C" /> : "--"}</div>
-                <div>Track {weather?.trackTemp != null ? <NumberFlow value={Number(weather.trackTemp)} suffix="C" /> : "--"}</div>
-                <div>Humidity {weather?.humidity != null ? <NumberFlow value={Number(weather.humidity)} suffix="%" /> : "--"}</div>
-                <div>Wind {weather?.windSpeed != null ? <NumberFlow value={Number(weather.windSpeed)} suffix=" km/h" /> : "--"}</div>
+                <div>
+                  Air{" "}
+                  {weather?.airTemp != null ? (
+                    <NumberFlow value={Number(weather.airTemp)} suffix="C" />
+                  ) : (
+                    "--"
+                  )}
+                </div>
+                <div>
+                  Track{" "}
+                  {weather?.trackTemp != null ? (
+                    <NumberFlow value={Number(weather.trackTemp)} suffix="C" />
+                  ) : (
+                    "--"
+                  )}
+                </div>
+                <div>
+                  Humidity{" "}
+                  {weather?.humidity != null ? (
+                    <NumberFlow value={Number(weather.humidity)} suffix="%" />
+                  ) : (
+                    "--"
+                  )}
+                </div>
+                <div>
+                  Wind{" "}
+                  {weather?.windSpeed != null ? (
+                    <NumberFlow
+                      value={Number(weather.windSpeed)}
+                      suffix=" km/h"
+                    />
+                  ) : (
+                    "--"
+                  )}
+                </div>
                 <div>Rain {weather?.rainfall ?? "--"}</div>
               </div>
             </PanelShell>
@@ -187,10 +239,10 @@ export function TimingBoard() {
           <div className="space-y-6">
             <Card className="overflow-hidden border-[color-mix(in_oklab,var(--border),var(--primary)_20%)] bg-[linear-gradient(135deg,color-mix(in_oklab,var(--panel),white_3%),var(--panel-elevated))]">
               <CardHeader>
-                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--panel)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted-foreground)]">
+                <Badge variant="subtle" className="w-fit gap-2 px-3">
                   <TimerReset className="size-3.5" />
                   Live timing board
-                </div>
+                </Badge>
                 <CardTitle className="text-4xl tracking-[-0.04em] md:text-6xl">
                   {activeSession?.meetingName ?? "Timing Board"}
                 </CardTitle>
@@ -214,10 +266,14 @@ export function TimingBoard() {
             >
               <div className="grid gap-3 text-sm text-[var(--muted-foreground)] md:grid-cols-2">
                 <div className="rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel-elevated)] p-4">
-                  Last race control: {raceControl[0] ? formatDate(raceControl[0].emittedAt) : "-"}
+                  Last race control:{" "}
+                  {raceControl[0] ? formatDate(raceControl[0].emittedAt) : "-"}
                 </div>
                 <div className="rounded-(--radius-md) border border-[var(--border)] bg-[var(--panel-elevated)] p-4">
-                  Last signal: {recentSignals[0] ? formatDate(recentSignals[0].emittedAt) : "-"}
+                  Last signal:{" "}
+                  {recentSignals[0]
+                    ? formatDate(recentSignals[0].emittedAt)
+                    : "-"}
                 </div>
               </div>
             </PanelShell>

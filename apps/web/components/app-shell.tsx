@@ -2,13 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Activity,
-  LayoutDashboard,
-  PlaySquare,
-  Waves,
-} from "lucide-react";
+import { Activity, LayoutDashboard, PlaySquare, Waves } from "lucide-react";
 
+import { AuthStatus } from "@/components/auth/auth-status";
 import { DashboardRail } from "@/components/dashboard-rail";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -29,7 +25,12 @@ const primaryLinks = [
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  if (pathname === "/replica" || pathname.startsWith("/replica/")) {
+  if (
+    pathname === "/replica" ||
+    pathname.startsWith("/replica/") ||
+    pathname === "/sign-in" ||
+    pathname.startsWith("/invite/")
+  ) {
     return <>{children}</>;
   }
 
@@ -52,6 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
             <div className="flex items-center gap-1 overflow-x-auto">
               <ThemeToggle />
+              <AuthStatus />
               <nav className="flex items-center gap-1 overflow-x-auto">
                 {primaryLinks.map((link) => {
                   const Icon = link.icon;

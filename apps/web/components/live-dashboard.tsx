@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Radio } from "lucide-react";
+import { Radio } from "lucide-react";
 
 import NumberFlow from "@number-flow/react";
 
@@ -30,7 +29,7 @@ import {
   WorkspaceLinksPanel,
 } from "@/components/live-dashboard-panels";
 import { TrackSurface } from "@/components/track-surface";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -38,6 +37,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CtaLink } from "@/components/ui/cta-link";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-AU", {
@@ -47,7 +47,9 @@ function formatDate(value: string) {
 }
 
 export function LiveDashboard() {
-  const [selectedSessionKey, setSelectedSessionKey] = useState<number | null>(null);
+  const [selectedSessionKey, setSelectedSessionKey] = useState<number | null>(
+    null,
+  );
 
   const liveSessionsQuery = useQuery({
     queryKey: ["sessions", "live-catalog"],
@@ -70,7 +72,10 @@ export function LiveDashboard() {
     }
 
     setSelectedSessionKey((current) => {
-      if (current && liveSessions.some((session) => session.sessionKey === current)) {
+      if (
+        current &&
+        liveSessions.some((session) => session.sessionKey === current)
+      ) {
         return current;
       }
 
@@ -79,7 +84,8 @@ export function LiveDashboard() {
   }, [liveSessions]);
 
   const activeSession = useMemo(
-    () => liveSessions.find((session) => session.sessionKey === selectedSessionKey),
+    () =>
+      liveSessions.find((session) => session.sessionKey === selectedSessionKey),
     [liveSessions, selectedSessionKey],
   );
   const activeSessionKey = activeSession?.sessionKey;
@@ -99,13 +105,18 @@ export function LiveDashboard() {
   const outlinePoints = useLiveSessionStore((state) => state.outlinePoints);
 
   const weather = useMemo(() => getWeather(boot ?? undefined), [boot]);
-  const sessionState = useMemo(() => getSessionState(boot ?? undefined), [boot]);
+  const sessionState = useMemo(
+    () => getSessionState(boot ?? undefined),
+    [boot],
+  );
   const leaderboard = useMemo(() => getLeaderboard(boot ?? undefined), [boot]);
   const topicCoverage = useMemo(
     () => getBootTopicCoverage(boot ?? undefined),
     [boot],
   );
-  const availableTopicCount = topicCoverage.filter((topic) => topic.available).length;
+  const availableTopicCount = topicCoverage.filter(
+    (topic) => topic.available,
+  ).length;
   const trackSurfaceModel = useMemo(
     () =>
       getTrackSurfaceModelFromFrames({
@@ -113,11 +124,15 @@ export function LiveDashboard() {
         displayPositions: latestTrackPositions,
         sessionDrivers,
         outlinePoints,
-      }) ?? getTrackSurfaceModel(boot ?? undefined, latestTrackPositions.length > 0),
+      }) ??
+      getTrackSurfaceModel(boot ?? undefined, latestTrackPositions.length > 0),
     [boot, latestTrackPositions, outlinePoints, sessionDrivers],
   );
   const recentSignals = useMemo(
-    () => [...liveWindow].sort((left, right) => right.sequence - left.sequence).slice(0, 6),
+    () =>
+      [...liveWindow]
+        .sort((left, right) => right.sequence - left.sequence)
+        .slice(0, 6),
     [liveWindow],
   );
   const recentCompleted = useMemo(
@@ -128,7 +143,10 @@ export function LiveDashboard() {
     [recentSessionsQuery.data?.data],
   );
 
-  if (liveSessionsQuery.isLoading || (activeSessionKey !== undefined && liveStatus === "loading")) {
+  if (
+    liveSessionsQuery.isLoading ||
+    (activeSessionKey !== undefined && liveStatus === "loading")
+  ) {
     return (
       <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,var(--accent-soft),transparent_28%),linear-gradient(180deg,var(--background),var(--background-elevated))]">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 md:px-8 md:py-10">
@@ -149,26 +167,24 @@ export function LiveDashboard() {
         <div className="mx-auto flex max-w-7xl flex-col gap-8 px-6 py-8 md:px-8 md:py-10">
           <Card className="overflow-hidden border-[color-mix(in_oklab,var(--border),var(--primary)_20%)] bg-[linear-gradient(135deg,color-mix(in_oklab,var(--panel),white_3%),var(--panel-elevated))]">
             <CardHeader className="gap-4">
-              <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--panel)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted-foreground)]">
+              <Badge variant="subtle" className="w-fit gap-2 px-3">
                 <Radio className="size-3.5" />
                 Live Control Room
-              </div>
+              </Badge>
               <CardTitle className="max-w-4xl text-4xl tracking-[-0.04em] md:text-6xl">
-                No race is live right now, but the dedicated live shell is ready.
+                No race is live right now, but the dedicated live shell is
+                ready.
               </CardTitle>
               <CardDescription className="max-w-2xl text-base leading-7 text-[var(--muted-foreground)]">
-                This page is reserved for active sessions only. Historical replay,
-                simulation, and telemetry deep dives stay separate so the live
-                experience can stay fast and focused.
+                This page is reserved for active sessions only. Historical
+                replay, simulation, and telemetry deep dives stay separate so
+                the live experience can stay fast and focused.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-3">
-              <Button asChild>
-                <Link href="/simulate">
-                  Browse historical sessions
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
+              <CtaLink href="/simulate" variant="default">
+                Browse historical sessions
+              </CtaLink>
             </CardContent>
           </Card>
 
@@ -185,10 +201,12 @@ export function LiveDashboard() {
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm text-[var(--muted-foreground)]">
                     <div>{formatDate(session.startsAt)}</div>
-                    <div><NumberFlow value={session.frameCount} /> stored frames</div>
-                    <Button asChild variant="outline">
-                      <Link href={`/sessions/${session.sessionKey}`}>Open session</Link>
-                    </Button>
+                    <div>
+                      <NumberFlow value={session.frameCount} /> stored frames
+                    </div>
+                    <CtaLink href={`/sessions/${session.sessionKey}/simulate`}>
+                      Open replay
+                    </CtaLink>
                   </CardContent>
                 </Card>
               ))}
@@ -206,15 +224,14 @@ export function LiveDashboard() {
           <Card className="border-[var(--destructive)]/30">
             <CardHeader>
               <CardTitle>Live dashboard unavailable</CardTitle>
-              <CardDescription>{liveError ?? "Live session failed to load."}</CardDescription>
+              <CardDescription>
+                {liveError ?? "Live session failed to load."}
+              </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-3">
-              <Button asChild>
-                <Link href="/simulate">
-                  Open simulation hub
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
+              <CtaLink href="/simulate" variant="default">
+                Open simulation hub
+              </CtaLink>
             </CardContent>
           </Card>
         </div>
@@ -243,22 +260,23 @@ export function LiveDashboard() {
             <Card className="overflow-hidden border-[color-mix(in_oklab,var(--border),var(--primary)_20%)] bg-[linear-gradient(135deg,color-mix(in_oklab,var(--panel),white_3%),var(--panel-elevated))]">
               <CardHeader className="gap-5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-[var(--destructive)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-white">
+                  <Badge variant="live" className="gap-2 px-3">
                     <span className="size-2 rounded-full bg-white animate-pulse" />
                     Live
-                  </span>
-                  <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--panel)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--muted-foreground)]">
+                  </Badge>
+                  <Badge variant="subtle" className="gap-2 px-3">
                     Dedicated Control Room
-                  </span>
+                  </Badge>
                 </div>
                 <div className="space-y-3">
                   <CardTitle className="max-w-4xl text-4xl tracking-[-0.04em] md:text-6xl">
                     {activeSession?.meetingName ?? "Live Session"}
                   </CardTitle>
                   <CardDescription className="max-w-2xl text-base leading-7 text-[var(--muted-foreground)]">
-                    {activeSession?.sessionName ?? "Current session"} running in a
-                    live-first layout. Historical simulation, replay, and telemetry
-                    deep dives stay separate so this surface can stay focused.
+                    {activeSession?.sessionName ?? "Current session"} running in
+                    a live-first layout. Historical simulation, replay, and
+                    telemetry deep dives stay separate so this surface can stay
+                    focused.
                   </CardDescription>
                 </div>
                 <div className="grid gap-3 md:grid-cols-3">
@@ -269,7 +287,11 @@ export function LiveDashboard() {
                   />
                   <MetricPanel
                     label="Track status"
-                    value={sessionState?.trackMessage ?? sessionState?.trackStatus ?? "Unknown"}
+                    value={
+                      sessionState?.trackMessage ??
+                      sessionState?.trackStatus ??
+                      "Unknown"
+                    }
                     hint="Current race control condition"
                   />
                   <MetricPanel

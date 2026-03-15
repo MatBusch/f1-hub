@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Radio, TimerReset } from "lucide-react";
+import { Radio, TimerReset } from "lucide-react";
 
 import { fetchSessionCatalog } from "@/lib/api";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Card,
@@ -15,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CtaLink } from "@/components/ui/cta-link";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-AU", {
@@ -60,7 +59,10 @@ export function SessionModeBrowser({
             }
           }
 
-          return new Date(right.startsAt).getTime() - new Date(left.startsAt).getTime();
+          return (
+            new Date(right.startsAt).getTime() -
+            new Date(left.startsAt).getTime()
+          );
         })
         .slice(0, 9),
     [mode, rows],
@@ -77,7 +79,11 @@ export function SessionModeBrowser({
           <Card>
             <CardHeader>
               <div className="inline-flex w-fit items-center gap-2 border border-[var(--border)] bg-[var(--muted)] px-2.5 py-1 text-[10px] uppercase tracking-[0.22em] text-[var(--muted-foreground)]">
-                {mode === "simulate" ? <TimerReset className="size-3.5" /> : <Radio className="size-3.5" />}
+                {mode === "simulate" ? (
+                  <TimerReset className="size-3.5" />
+                ) : (
+                  <Radio className="size-3.5" />
+                )}
                 {mode === "simulate" ? "replay hub" : `${mode} hub`}
               </div>
               <CardTitle className="text-2xl">{title}</CardTitle>
@@ -93,8 +99,9 @@ export function SessionModeBrowser({
             </CardHeader>
             <CardContent className="space-y-3 text-[12px] text-[var(--muted-foreground)]">
               <p>
-                The top-level route matches the F1Dash-style information architecture, while session-specific
-                workspaces still live under each session for direct linking.
+                The top-level route matches the F1Dash-style information
+                architecture, while session-specific workspaces still live under
+                each session for direct linking.
               </p>
               <div className="border border-[var(--border)] bg-[var(--muted)] p-3 text-[11px]">
                 {mode === "simulate"
@@ -115,9 +122,7 @@ export function SessionModeBrowser({
                 </CardHeader>
                 <CardContent className="space-y-3 text-[12px] text-[var(--muted-foreground)]">
                   <div>Live now</div>
-                  <Button asChild variant="outline">
-                    <Link href="/dashboard">Open live dashboard</Link>
-                  </Button>
+                  <CtaLink href="/dashboard">Open live dashboard</CtaLink>
                 </CardContent>
               </Card>
             ))}
@@ -128,7 +133,8 @@ export function SessionModeBrowser({
           <div>
             <h2 className="text-[13px] font-bold">Completed Sessions</h2>
             <p className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">
-              Pick a stored session and jump directly into the dedicated {mode === "simulate" ? "replay" : mode} workspace.
+              Pick a stored session and jump directly into the dedicated{" "}
+              {mode === "simulate" ? "replay" : mode} workspace.
             </p>
             {mode === "simulate" ? (
               <p className="text-[11px] text-[var(--muted-foreground)]">
@@ -170,15 +176,17 @@ export function SessionModeBrowser({
                   <div>{session.frameCount.toLocaleString()} frames</div>
                   {mode === "simulate" ? (
                     <div>
-                      {session.replayReady ? "Replay ready" : "Replay not ready"}
+                      {session.replayReady
+                        ? "Replay ready"
+                        : "Replay not ready"}
                     </div>
                   ) : null}
-                  <Button asChild>
-                    <Link href={`/sessions/${session.sessionKey}/${mode}`}>
-                      Open {mode === "simulate" ? "replay" : mode}
-                      <ArrowRight className="size-4" />
-                    </Link>
-                  </Button>
+                  <CtaLink
+                    href={`/sessions/${session.sessionKey}/${mode}`}
+                    variant="default"
+                  >
+                    Open {mode === "simulate" ? "replay" : mode}
+                  </CtaLink>
                 </CardContent>
               </Card>
             ))}

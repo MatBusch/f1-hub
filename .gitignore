@@ -1,7 +1,6 @@
 node_modules
 .next
 .turbo
-pnpm-lock.yaml
 .env
 .env.*
 dist
@@ -10,3 +9,7 @@ coverage
 .tinyb
 .tb-generated-*
 .tmp/
+.agents/
+.claude/
+skills-lock.json
+apps/web/data/

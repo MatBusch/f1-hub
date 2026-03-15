@@ -4,6 +4,7 @@ import {
   parseOptionalIntParam,
   withCache,
 } from "@/lib/server/tinybird";
+import { authenticatedJsonRoute } from "@/lib/server/auth-session";
 import { type NextRequest } from "next/server";
 
 type RouteContext = {
@@ -11,27 +12,32 @@ type RouteContext = {
 };
 
 export async function GET(request: NextRequest, context: RouteContext) {
-  return jsonRoute(async () => {
-    const { sessionKey } = await context.params;
-    const parsedSessionKey = Number.parseInt(sessionKey, 10);
+  return authenticatedJsonRoute(
+    request,
+    async () => {
+      const { sessionKey } = await context.params;
+      const parsedSessionKey = Number.parseInt(sessionKey, 10);
 
-    if (!Number.isFinite(parsedSessionKey) || parsedSessionKey < 0) {
-      throw new Error('Invalid "sessionKey" route parameter.');
-    }
+      if (!Number.isFinite(parsedSessionKey) || parsedSessionKey < 0) {
+        throw new Error('Invalid "sessionKey" route parameter.');
+      }
 
-    const driverNumber = parseOptionalIntParam(
-      request.nextUrl.searchParams.get("driverNumber"),
-      "driverNumber",
-      1,
-    );
+      const driverNumber = parseOptionalIntParam(
+        request.nextUrl.searchParams.get("driverNumber"),
+        "driverNumber",
+        1,
+      );
 
-    if (!driverNumber) {
-      throw new Error('Missing required "driverNumber" query parameter.');
-    }
+      if (!driverNumber) {
+        throw new Error('Missing required "driverNumber" query parameter.');
+      }
 
-    return getTinybirdRepository().getTelemetryLapSummaries({
-      sessionKey: parsedSessionKey,
-      driverNumber,
-    });
-  }, withCache(300, 3600));
+      return getTinybirdRepository().getTelemetryLapSummaries({
+        sessionKey: parsedSessionKey,
+        driverNumber,
+      });
+    },
+    jsonRoute,
+    withCache(300, 3600),
+  );
 }

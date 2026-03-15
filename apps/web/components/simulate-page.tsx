@@ -23,6 +23,7 @@ import {
 import NumberFlow from "@number-flow/react";
 
 import { fetchSessionCatalog } from "@/lib/api";
+import { Badge } from "@/components/ui/badge";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-GB", {
@@ -125,13 +126,14 @@ export function SimulatePage() {
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 border border-[var(--border)] bg-[var(--panel)] px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
+              <Badge
+                variant="subtle"
+                className="gap-2 px-2.5 text-[10px] tracking-[0.16em]"
+              >
                 <PlaySquare className="size-3" />
                 Session Replay
-              </div>
-              <h1 className="text-xl font-bold">
-                Simulate
-              </h1>
+              </Badge>
+              <h1 className="text-xl font-bold">Simulate</h1>
               <p className="max-w-xl text-[12px] leading-relaxed text-[var(--muted-foreground)]">
                 Replay any practice, qualifying, or race with full live timing
                 data. Adjustable playback from 0.5x to 16x with team radio, race
@@ -184,15 +186,17 @@ export function SimulatePage() {
                   className="group flex items-center justify-between border border-[var(--primary)]/30 bg-[var(--primary)]/8 p-3 transition-colors hover:bg-[var(--primary)]/14"
                 >
                   <div>
-                    <div className="text-[12px] font-bold">{session.meetingName}</div>
+                    <div className="text-[12px] font-bold">
+                      {session.meetingName}
+                    </div>
                     <div className="text-[11px] text-[var(--muted-foreground)]">
                       {session.sessionName}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[11px] text-[var(--primary)]">
+                  <Badge variant="live" className="gap-1.5 px-2">
                     <Radio className="size-3.5" />
                     Live
-                  </div>
+                  </Badge>
                 </Link>
               ))}
             </div>
@@ -238,11 +242,10 @@ export function SimulatePage() {
         {/* Section Header */}
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-[13px] font-bold">
-              Completed Sessions
-            </h2>
+            <h2 className="text-[13px] font-bold">Completed Sessions</h2>
             <p className="mt-0.5 text-[11px] text-[var(--muted-foreground)]">
-              <NumberFlow value={filteredRows.length} /> session{filteredRows.length !== 1 ? "s" : ""} available
+              <NumberFlow value={filteredRows.length} /> session
+              {filteredRows.length !== 1 ? "s" : ""} available
             </p>
           </div>
         </div>

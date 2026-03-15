@@ -3,6 +3,7 @@ import {
   jsonRoute,
   parseOptionalIntParam,
 } from "@/lib/server/tinybird";
+import { authenticatedJsonRoute } from "@/lib/server/auth-session";
 import { type NextRequest } from "next/server";
 
 type RouteContext = {
@@ -10,30 +11,34 @@ type RouteContext = {
 };
 
 export async function GET(request: NextRequest, context: RouteContext) {
-  return jsonRoute(async () => {
-    const { sessionKey } = await context.params;
-    const parsedSessionKey = Number.parseInt(sessionKey, 10);
+  return authenticatedJsonRoute(
+    request,
+    async () => {
+      const { sessionKey } = await context.params;
+      const parsedSessionKey = Number.parseInt(sessionKey, 10);
 
-    if (!Number.isFinite(parsedSessionKey) || parsedSessionKey < 0) {
-      throw new Error('Invalid "sessionKey" route parameter.');
-    }
+      if (!Number.isFinite(parsedSessionKey) || parsedSessionKey < 0) {
+        throw new Error('Invalid "sessionKey" route parameter.');
+      }
 
-    const atTime = request.nextUrl.searchParams.get("atTime");
+      const atTime = request.nextUrl.searchParams.get("atTime");
 
-    if (!atTime) {
-      throw new Error('Missing required "atTime" query parameter.');
-    }
+      if (!atTime) {
+        throw new Error('Missing required "atTime" query parameter.');
+      }
 
-    const windowMs = parseOptionalIntParam(
-      request.nextUrl.searchParams.get("windowMs"),
-      "windowMs",
-      1,
-    );
+      const windowMs = parseOptionalIntParam(
+        request.nextUrl.searchParams.get("windowMs"),
+        "windowMs",
+        1,
+      );
 
-    return getTinybirdRepository().getTrackReplayFrame({
-      sessionKey: parsedSessionKey,
-      atTime,
-      windowMs,
-    });
-  });
+      return getTinybirdRepository().getTrackReplayFrame({
+        sessionKey: parsedSessionKey,
+        atTime,
+        windowMs,
+      });
+    },
+    jsonRoute,
+  );
 }

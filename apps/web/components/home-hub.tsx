@@ -1,13 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight, Radio, TimerReset, Waves } from "lucide-react";
+import { Radio, TimerReset, Waves } from "lucide-react";
 
 import { fetchSessionCatalog } from "@/lib/api";
 import { SessionCatalog } from "@/components/session-catalog";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CtaLink } from "@/components/ui/cta-link";
 
 export function HomeHub() {
   const catalogQuery = useQuery({
@@ -45,27 +44,26 @@ export function HomeHub() {
                 </div>
                 <div className="space-y-2">
                   <CardTitle className="max-w-4xl text-lg font-semibold md:text-xl">
-                    Live race control room, replay, and deep-dive analysis in one system.
+                    Live race control room, replay, and deep-dive analysis in
+                    one system.
                   </CardTitle>
                   <CardDescription className="max-w-2xl text-[12px] leading-relaxed text-[var(--muted-foreground)]">
-                    The app now has a dedicated direction: a focused live page for
-                    active sessions, with historical simulation and telemetry workspaces
-                    growing separately from the race-day surface.
+                    The app now has a dedicated direction: a focused live page
+                    for active sessions, with historical simulation and
+                    telemetry workspaces growing separately from the race-day
+                    surface.
                   </CardDescription>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button asChild>
-                    <Link href="/dashboard">
-                      Open live control room
-                      <ArrowRight className="size-3.5" />
-                    </Link>
-                  </Button>
+                  <CtaLink href="/dashboard" variant="default">
+                    Open live control room
+                  </CtaLink>
                   {latestCompleted ? (
-                    <Button asChild variant="outline">
-                      <Link href={`/sessions/${latestCompleted.sessionKey}`}>
-                        Open latest session
-                      </Link>
-                    </Button>
+                    <CtaLink
+                      href={`/sessions/${latestCompleted.sessionKey}/simulate`}
+                    >
+                      Open latest session
+                    </CtaLink>
                   ) : null}
                 </div>
               </CardHeader>
@@ -74,12 +72,13 @@ export function HomeHub() {
             <div className="grid gap-2">
               <Card className="border-[var(--primary)]/30 bg-[var(--primary)]/8">
                 <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-[13px] text-[var(--primary)]">
-                  <Radio className="size-4" />
-                  Live Page
+                  <CardTitle className="flex items-center gap-2 text-[13px] text-[var(--primary)]">
+                    <Radio className="size-4" />
+                    Live Page
                   </CardTitle>
                   <CardDescription className="text-[11px] text-[var(--muted-foreground)]">
-                    Race-day timing tower, track surface, race control, and rolling signal windows.
+                    Race-day timing tower, track surface, race control, and
+                    rolling signal windows.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="text-[11px] text-[var(--muted-foreground)]">
@@ -98,11 +97,12 @@ export function HomeHub() {
                   </CardHeader>
                   <CardContent className="space-y-2 text-[11px] text-[var(--muted-foreground)]">
                     <p>
-                      Historical sessions stay chunkable and replay-safe instead of overloading live mode.
+                      Historical sessions stay chunkable and replay-safe instead
+                      of overloading live mode.
                     </p>
-                    <Button asChild variant="outline" size="sm">
-                      <Link href="/simulate">Open simulate hub</Link>
-                    </Button>
+                    <CtaLink href="/simulate" size="sm">
+                      Open simulate hub
+                    </CtaLink>
                   </CardContent>
                 </Card>
                 <Card>
@@ -114,11 +114,12 @@ export function HomeHub() {
                   </CardHeader>
                   <CardContent className="space-y-2 text-[11px] text-[var(--muted-foreground)]">
                     <p>
-                      Telemetry overlays, stint views, and comparisons can grow into their own pages next.
+                      Telemetry overlays, stint views, and comparisons can grow
+                      into their own pages next.
                     </p>
-                    <Button asChild variant="outline" size="sm">
-                      <Link href="/telemetry">Open telemetry hub</Link>
-                    </Button>
+                    <CtaLink href="/telemetry" size="sm">
+                      Open telemetry hub
+                    </CtaLink>
                   </CardContent>
                 </Card>
               </div>

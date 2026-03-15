@@ -1,4 +1,5 @@
 import { getTinybirdRepository } from "@/lib/server/tinybird";
+import { getRequestSession, unauthorizedJson } from "@/lib/server/auth-session";
 import { type NextRequest } from "next/server";
 
 type RouteContext = {
@@ -12,6 +13,12 @@ function writeEvent(name: string, payload: unknown) {
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
+  const session = await getRequestSession(request);
+
+  if (!session) {
+    return unauthorizedJson();
+  }
+
   const { sessionKey } = await context.params;
   const parsedSessionKey = Number.parseInt(sessionKey, 10);
 
@@ -50,7 +57,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
             ]);
 
           const latestSequence =
-            liveWindow.data[liveWindow.data.length - 1]?.sequence ?? fromSequence;
+            liveWindow.data[liveWindow.data.length - 1]?.sequence ??
+            fromSequence;
 
           controller.enqueue(
             writeEvent("snapshot", {
@@ -80,7 +88,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
   return new Response(stream, {
     headers: {
       "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache, no-transform",
+      "Cache-Control": "private, no-store, no-transform",
       Connection: "keep-alive",
     },
   });

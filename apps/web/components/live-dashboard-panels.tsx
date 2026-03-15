@@ -1,13 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import type { LiveEnvelope, RaceControlMessage } from "@f1-hub/contracts";
-import { Radio, Waves, Wind } from "lucide-react";
+import type { ReactNode } from "react";
+import { Waves, Wind } from "lucide-react";
 
 import NumberFlow from "@number-flow/react";
 
 import { getLeaderboard } from "@/lib/session-insights";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -15,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CtaLink } from "@/components/ui/cta-link";
 
 type TimingRow = ReturnType<typeof getLeaderboard>[number];
 
@@ -103,7 +103,7 @@ export function PanelShell({
 }: {
   title: string;
   description?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }) {
   return (
@@ -392,22 +392,14 @@ export function WorkspaceLinksPanel({ sessionKey }: { sessionKey?: number }) {
           separate workloads.
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href="/simulate">
-              <Radio className="size-4" />
-              Simulate hub
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/telemetry">
-              <Waves className="size-4" />
-              Telemetry hub
-            </Link>
-          </Button>
+          <CtaLink href="/simulate" variant="default">
+            Simulate hub
+          </CtaLink>
+          <CtaLink href="/telemetry">Telemetry hub</CtaLink>
           {sessionKey ? (
-            <Button asChild variant="outline">
-              <Link href={`/sessions/${sessionKey}`}>Session workspace</Link>
-            </Button>
+            <CtaLink href={`/sessions/${sessionKey}/simulate`}>
+              Replay workspace
+            </CtaLink>
           ) : null}
         </div>
       </div>

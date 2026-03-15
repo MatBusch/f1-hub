@@ -1,3 +1,9 @@
 packages:
   - apps/*
   - packages/*
+
+ignoredBuiltDependencies:
+  - "@prisma/client"
+  - esbuild
+  - sharp
+  - unrs-resolver
